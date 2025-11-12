@@ -45,7 +45,7 @@ const Dashboard = ({ user, token, showDashboard, onLogout }) => {
         </div>
         
         {/* JWT Token Section */}
-        {token && (
+        {/* {token && (
           <div className="token-section">
             <div className="token-header">
               <span className="token-icon">🔑</span>
@@ -61,7 +61,7 @@ const Dashboard = ({ user, token, showDashboard, onLogout }) => {
               🔍 Verify on JWT.io
             </a>
           </div>
-        )}
+        )} */}
         
         {/* Action Buttons */}
         <div className="action-buttons">
