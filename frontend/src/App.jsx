@@ -1,20 +1,45 @@
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import './App.css'
+import Dashboard from './components/Dashboard'
+import AuthForm from './components/AuthForm'
 
 const API_URL = 'https://rex-ai-hu5w.onrender.com'
+
+// Test function to check backend connectivity
+const testBackend = async () => {
+  try {
+    const response = await fetch(`${API_URL}/test`)
+    const data = await response.json()
+    console.log('Backend test:', data)
+    return true
+  } catch (error) {
+    console.error('Backend test failed:', error)
+    return false
+  }
+}
 
 function App() {
   const [showAuth, setShowAuth] = useState(false)
   const [isLogin, setIsLogin] = useState(true)
   const [isLoggedIn, setIsLoggedIn] = useState(false)
   const [user, setUser] = useState(null)
-  const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    password: ''
-  })
+  const [showDashboard, setShowDashboard] = useState(false)
+
   const [message, setMessage] = useState('')
   const [token, setToken] = useState('')
+  const dropdownRef = useRef(null)
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setShowDashboard(false)
+      }
+    }
+    
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [])
 
   const wakeUpBackend = async () => {
     try {
@@ -24,8 +49,7 @@ function App() {
     }
   }
 
-  const handleSubmit = async (e) => {
-    e.preventDefault()
+  const handleAuthSubmit = async (formData) => {
     setMessage('Processing...')
     
     const endpoint = isLogin ? '/api/auth/login' : '/api/auth/register'
@@ -33,9 +57,8 @@ function App() {
     console.log('Form data:', formData)
     
     try {
-      // Add timeout to prevent hanging
       const controller = new AbortController()
-      const timeoutId = setTimeout(() => controller.abort(), 30000) // 30 second timeout
+      const timeoutId = setTimeout(() => controller.abort(), 60000)
       
       const response = await fetch(`${API_URL}${endpoint}`, {
         method: 'POST',
@@ -58,8 +81,6 @@ function App() {
         setUser(data.user)
         setIsLoggedIn(true)
         setShowAuth(false)
-        // Clear form
-        setFormData({ name: '', email: '', password: '' })
       } else {
         setMessage(data.message || `Error: ${response.status}`)
       }
@@ -79,127 +100,21 @@ function App() {
     setUser(null)
     setToken('')
     setMessage('')
+    setShowDashboard(false)
   }
 
-  if (isLoggedIn && user) {
-    return (
-      <div className="dashboard">
-        <nav className="navbar">
-          <div className="nav-brand">
-            <h1>RexAI</h1>
-          </div>
-          <div className="nav-buttons">
-            <span className="user-name">Welcome, {user.name}</span>
-            <button className="btn-logout" onClick={handleLogout}>
-              Logout
-            </button>
-          </div>
-        </nav>
-        
-        <main className="dashboard-content">
-          <div className="profile-card">
-            <div className="profile-header">
-              <div className="avatar">
-                {user.name.charAt(0).toUpperCase()}
-              </div>
-              <h2>{user.name}</h2>
-              <p className="email">{user.email}</p>
-            </div>
-            
-            <div className="profile-info">
-              <div className="info-item">
-                <label>User ID:</label>
-                <span>{user.id}</span>
-              </div>
-              <div className="info-item">
-                <label>Role:</label>
-                <span>{user.role || 'User'}</span>
-              </div>
-              <div className="info-item">
-                <label>Status:</label>
-                <span className="status-active">Active</span>
-              </div>
-            </div>
-            
-            {token && (
-              <div className="token-section">
-                <h3>JWT Token:</h3>
-                <textarea value={token} readOnly rows="4" />
-                <p>Copy this token to <a href="https://jwt.io" target="_blank">jwt.io</a> to verify</p>
-              </div>
-            )}
-          </div>
-        </main>
-      </div>
-    )
-  }
+
 
   if (showAuth) {
     return (
-      <div className="auth-container">
-        <div className="auth-card">
-          <h2>{isLogin ? 'Sign In' : 'Sign Up'}</h2>
-          
-          <form onSubmit={handleSubmit}>
-            {!isLogin && (
-              <input
-                type="text"
-                placeholder="Full Name"
-                value={formData.name}
-                onChange={(e) => setFormData({...formData, name: e.target.value})}
-                required={!isLogin}
-              />
-            )}
-            
-            <input
-              type="email"
-              placeholder="Email Address"
-              value={formData.email}
-              onChange={(e) => setFormData({...formData, email: e.target.value})}
-              required
-            />
-            
-            <input
-              type="password"
-              placeholder="Password"
-              value={formData.password}
-              onChange={(e) => setFormData({...formData, password: e.target.value})}
-              required
-            />
-            
-            <button type="submit" className="auth-btn">
-              {isLogin ? 'Sign In' : 'Sign Up'}
-            </button>
-          </form>
-          
-          <div className="switch-text">
-            {isLogin ? "Don't have an account? " : "Already have an account? "}
-            <button className="switch-btn" onClick={() => setIsLogin(!isLogin)}>
-              {isLogin ? 'Sign Up' : 'Sign In'}
-            </button>
-          </div>
-          
-          <button className="back-btn" onClick={() => setShowAuth(false)}>
-            ← Back to Home
-          </button>
-          
-          {message && (
-            <p className={`message ${
-              message.includes('error') || message.includes('Error') ? 'error' : 
-              message.includes('Processing') ? 'processing' : ''
-            }`}>
-              {message}
-            </p>
-          )}
-          {token && (
-            <div className="token">
-              <h3>JWT Token:</h3>
-              <textarea value={token} readOnly rows="4" />
-              <p>Copy this token to <a href="https://jwt.io" target="_blank">jwt.io</a> to verify</p>
-            </div>
-          )}
-        </div>
-      </div>
+      <AuthForm
+        isLogin={isLogin}
+        onSubmit={handleAuthSubmit}
+        onToggle={() => setIsLogin(!isLogin)}
+        onBack={() => setShowAuth(false)}
+        message={message}
+        token={token}
+      />
     )
   }
 
@@ -210,18 +125,38 @@ function App() {
           <h1>RexAI</h1>
         </div>
         <div className="nav-buttons">
-          <button 
-            className="btn-signin" 
-            onClick={() => { setIsLogin(true); setShowAuth(true); }}
-          >
-            Sign In
-          </button>
-          <button 
-            className="btn-signup" 
-            onClick={() => { setIsLogin(false); setShowAuth(true); }}
-          >
-            Sign Up
-          </button>
+          {isLoggedIn && user ? (
+            <div className="user-profile" ref={dropdownRef}>
+              <span className="user-greeting">Welcome, {user.name}</span>
+              <div 
+                className="profile-avatar" 
+                onClick={() => setShowDashboard(!showDashboard)}
+              >
+                {user.name.charAt(0).toUpperCase()}
+              </div>
+              <Dashboard 
+                user={user}
+                token={token}
+                showDashboard={showDashboard}
+                onLogout={handleLogout}
+              />
+            </div>
+          ) : (
+            <>
+              <button 
+                className="btn-signin" 
+                onClick={() => { setIsLogin(true); setShowAuth(true); }}
+              >
+                Sign In
+              </button>
+              <button 
+                className="btn-signup" 
+                onClick={() => { setIsLogin(false); setShowAuth(true); }}
+              >
+                Sign Up
+              </button>
+            </>
+          )}
         </div>
       </nav>
       
