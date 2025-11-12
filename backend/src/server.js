@@ -14,7 +14,7 @@ app.use(cors({
 }));
 app.use(express.json());
 app.get('/', (req, res) => {
-  res.send('Welcome to the BookBuddy API');
+  res.send('Welcome to the Rex AI');
 });
 
 // Routes
