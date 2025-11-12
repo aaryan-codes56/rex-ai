@@ -25,7 +25,7 @@ All in one platform - helping users make **informed and confident career decisio
 | **Backend** | Node.js + Express.js |
 | **Database** | MongoDB Atlas |
 | **Authentication** | JWT (JSON Web Token) |
-| **Hosting** | Vercel (Frontend), Render (Backend), MongoDB Atlas (Database) |
+| **Hosting** | Netlify (Frontend), Render (Backend), MongoDB Atlas (Database) |
 
 ---
 
