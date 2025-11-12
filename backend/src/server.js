@@ -18,7 +18,7 @@ app.get('/', (req, res) => {
 });
 
 app.get('/test', (req, res) => {
-  res.json({ message: 'Backend is working!', timestamp: new Date().toISOString() });
+  res.json({ message: 'Backend is working!', timestamp: new Date().toISOString(), env: !!process.env.DATABASE_URL });
 });
 
 // Routes
