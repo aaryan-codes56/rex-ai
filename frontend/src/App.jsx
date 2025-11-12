@@ -16,9 +16,20 @@ function App() {
   const [message, setMessage] = useState('')
   const [token, setToken] = useState('')
 
+  const wakeUpBackend = async () => {
+    try {
+      await fetch(`${API_URL}/test`, { method: 'GET' })
+    } catch (error) {
+      console.log('Backend wake-up attempt')
+    }
+  }
+
   const handleSubmit = async (e) => {
     e.preventDefault()
     setMessage('Processing...')
+    
+    // Wake up backend first (Render free tier sleeps)
+    await wakeUpBackend()
     
     const endpoint = isLogin ? '/api/auth/login' : '/api/auth/register'
     console.log('Submitting to:', `${API_URL}${endpoint}`)
@@ -53,7 +64,40 @@ function App() {
       }
     } catch (error) {
       console.error('Network error:', error)
-      setMessage(`Network error: ${error.message}`)
+      
+      // Retry once after 3 seconds (backend might be waking up)
+      if (error.message.includes('fetch')) {
+        setMessage('Backend starting up, retrying...')
+        setTimeout(async () => {
+          try {
+            const retryResponse = await fetch(`${API_URL}${endpoint}`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify(formData),
+              mode: 'cors'
+            })
+            
+            const retryData = await retryResponse.json()
+            
+            if (retryResponse.ok) {
+              setMessage(`${isLogin ? 'Login' : 'Registration'} successful!`)
+              setToken(retryData.token)
+              setUser(retryData.user)
+              setIsLoggedIn(true)
+              setShowAuth(false)
+              setFormData({ name: '', email: '', password: '' })
+            } else {
+              setMessage(retryData.message || `Error: ${retryResponse.status}`)
+            }
+          } catch (retryError) {
+            setMessage('Backend unavailable. Please try again later.')
+          }
+        }, 3000)
+      } else {
+        setMessage(`Network error: ${error.message}`)
+      }
     }
   }
 

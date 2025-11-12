@@ -14,7 +14,7 @@ app.use(cors({
 }));
 app.use(express.json());
 app.get('/', (req, res) => {
-  res.send('Welcome to the Rex AI API');
+  res.send('Welcome to the Rex AI');
 });
 
 app.get('/test', (req, res) => {
