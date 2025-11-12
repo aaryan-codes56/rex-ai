@@ -28,15 +28,14 @@ function App() {
     e.preventDefault()
     setMessage('Processing...')
     
-    // Wake up backend first (Render free tier sleeps)
-    await wakeUpBackend()
-    
     const endpoint = isLogin ? '/api/auth/login' : '/api/auth/register'
     console.log('Submitting to:', `${API_URL}${endpoint}`)
     console.log('Form data:', formData)
     
     try {
-      console.log('Making request to:', `${API_URL}${endpoint}`);
+      // Add timeout to prevent hanging
+      const controller = new AbortController()
+      const timeoutId = setTimeout(() => controller.abort(), 30000) // 30 second timeout
       
       const response = await fetch(`${API_URL}${endpoint}`, {
         method: 'POST',
@@ -44,8 +43,10 @@ function App() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(formData),
-        mode: 'cors'
+        signal: controller.signal
       })
+      
+      clearTimeout(timeoutId)
       
       console.log('Response status:', response.status)
       const data = await response.json()
@@ -65,38 +66,10 @@ function App() {
     } catch (error) {
       console.error('Network error:', error)
       
-      // Retry once after 3 seconds (backend might be waking up)
-      if (error.message.includes('fetch')) {
-        setMessage('Backend starting up, retrying...')
-        setTimeout(async () => {
-          try {
-            const retryResponse = await fetch(`${API_URL}${endpoint}`, {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-              },
-              body: JSON.stringify(formData),
-              mode: 'cors'
-            })
-            
-            const retryData = await retryResponse.json()
-            
-            if (retryResponse.ok) {
-              setMessage(`${isLogin ? 'Login' : 'Registration'} successful!`)
-              setToken(retryData.token)
-              setUser(retryData.user)
-              setIsLoggedIn(true)
-              setShowAuth(false)
-              setFormData({ name: '', email: '', password: '' })
-            } else {
-              setMessage(retryData.message || `Error: ${retryResponse.status}`)
-            }
-          } catch (retryError) {
-            setMessage('Backend unavailable. Please try again later.')
-          }
-        }, 3000)
+      if (error.name === 'AbortError') {
+        setMessage('Request timed out. Please try again.')
       } else {
-        setMessage(`Network error: ${error.message}`)
+        setMessage(`Error: ${error.message}`)
       }
     }
   }
