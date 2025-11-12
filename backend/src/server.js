@@ -17,6 +17,10 @@ app.get('/', (req, res) => {
   res.send('Welcome to the Rex AI API');
 });
 
+app.get('/test', (req, res) => {
+  res.json({ message: 'Backend is working!', timestamp: new Date().toISOString() });
+});
+
 // Routes
 app.use('/api/auth', authRoutes);
 

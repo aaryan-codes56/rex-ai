@@ -25,12 +25,15 @@ function App() {
     console.log('Form data:', formData)
     
     try {
+      console.log('Making request to:', `${API_URL}${endpoint}`);
+      
       const response = await fetch(`${API_URL}${endpoint}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(formData)
+        body: JSON.stringify(formData),
+        mode: 'cors'
       })
       
       console.log('Response status:', response.status)
