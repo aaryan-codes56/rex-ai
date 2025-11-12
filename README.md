@@ -1,4 +1,4 @@
-# 🚀 RexAI – Your Smart AI-Powered Career Guidance Platform
+# RexAI – Your Smart AI-Powered Career Guidance Platform
 
 ## 🧠 Problem Statement
 Students and professionals often struggle to identify the right career path and find relevant upskilling opportunities that align with their goals.  
