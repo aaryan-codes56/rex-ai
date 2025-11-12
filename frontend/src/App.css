@@ -1,0 +1,299 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  background: #0a0a0a;
+  color: white;
+  overflow-x: hidden;
+}
+
+.App {
+  min-height: 100vh;
+  background: #0a0a0a;
+}
+
+/* Navbar Styles */
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 50px;
+  background: rgba(10, 10, 10, 0.95);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(139, 92, 246, 0.1);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.nav-brand h1 {
+  font-size: 2rem;
+  font-weight: 700;
+  color: white;
+  text-shadow: 0 0 20px rgba(139, 92, 246, 0.5);
+  letter-spacing: -0.02em;
+}
+
+.nav-buttons {
+  display: flex;
+  gap: 15px;
+}
+
+.btn-signin {
+  padding: 12px 24px;
+  background: transparent;
+  color: #8b5cf6;
+  border: 2px solid #8b5cf6;
+  border-radius: 50px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 14px;
+}
+
+.btn-signin:hover {
+  background: rgba(139, 92, 246, 0.1);
+  box-shadow: 0 0 20px rgba(139, 92, 246, 0.3);
+  transform: translateY(-2px);
+}
+
+.btn-signup {
+  padding: 12px 24px;
+  background: linear-gradient(135deg, #8b5cf6, #a855f7);
+  color: white;
+  border: none;
+  border-radius: 50px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 14px;
+  box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3);
+}
+
+.btn-signup:hover {
+  background: linear-gradient(135deg, #7c3aed, #9333ea);
+  box-shadow: 0 8px 25px rgba(139, 92, 246, 0.4);
+  transform: translateY(-2px);
+}
+
+/* Hero Section */
+.hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: calc(100vh - 100px);
+  text-align: center;
+  padding: 0 20px;
+}
+
+.hero-title {
+  font-size: clamp(3rem, 8vw, 6rem);
+  font-weight: 700;
+  background: linear-gradient(135deg, #ffffff, #8b5cf6);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: 20px;
+  text-shadow: 0 0 40px rgba(139, 92, 246, 0.3);
+  letter-spacing: -0.02em;
+}
+
+.hero-subtitle {
+  font-size: clamp(1.1rem, 3vw, 1.5rem);
+  color: #a1a1aa;
+  font-weight: 400;
+  max-width: 600px;
+  line-height: 1.6;
+  opacity: 0.9;
+}
+
+/* Auth Container */
+.auth-container {
+  min-height: 100vh;
+  background: #0a0a0a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.auth-card {
+  background: rgba(20, 20, 20, 0.8);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(139, 92, 246, 0.2);
+  border-radius: 20px;
+  padding: 40px;
+  width: 100%;
+  max-width: 450px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+}
+
+.auth-card h2 {
+  color: white;
+  font-size: 2rem;
+  font-weight: 600;
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.auth-card form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.auth-card input {
+  padding: 15px 20px;
+  background: rgba(30, 30, 30, 0.8);
+  border: 1px solid rgba(139, 92, 246, 0.3);
+  border-radius: 12px;
+  color: white;
+  font-size: 16px;
+  transition: all 0.3s ease;
+}
+
+.auth-card input::placeholder {
+  color: #71717a;
+}
+
+.auth-card input:focus {
+  outline: none;
+  border-color: #8b5cf6;
+  box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+  background: rgba(40, 40, 40, 0.8);
+}
+
+.auth-btn {
+  padding: 15px;
+  background: linear-gradient(135deg, #8b5cf6, #a855f7);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-top: 10px;
+}
+
+.auth-btn:hover {
+  background: linear-gradient(135deg, #7c3aed, #9333ea);
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px rgba(139, 92, 246, 0.3);
+}
+
+.switch-text {
+  text-align: center;
+  margin: 25px 0;
+  color: #a1a1aa;
+}
+
+.switch-btn {
+  background: none;
+  border: none;
+  color: #8b5cf6;
+  cursor: pointer;
+  text-decoration: underline;
+  font-weight: 500;
+}
+
+.switch-btn:hover {
+  color: #a855f7;
+}
+
+.back-btn {
+  background: none;
+  border: 1px solid rgba(139, 92, 246, 0.3);
+  color: #8b5cf6;
+  padding: 10px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  margin-top: 20px;
+  transition: all 0.3s ease;
+}
+
+.back-btn:hover {
+  background: rgba(139, 92, 246, 0.1);
+}
+
+.message {
+  margin: 20px 0;
+  padding: 15px;
+  border-radius: 12px;
+  background: rgba(34, 197, 94, 0.1);
+  color: #22c55e;
+  border: 1px solid rgba(34, 197, 94, 0.2);
+  text-align: center;
+}
+
+.token {
+  margin-top: 30px;
+  background: rgba(30, 30, 30, 0.8);
+  padding: 20px;
+  border-radius: 12px;
+  border: 1px solid rgba(139, 92, 246, 0.2);
+}
+
+.token h3 {
+  color: white;
+  margin-bottom: 15px;
+  text-align: center;
+}
+
+.token textarea {
+  width: 100%;
+  background: rgba(20, 20, 20, 0.8);
+  border: 1px solid rgba(139, 92, 246, 0.3);
+  border-radius: 8px;
+  padding: 15px;
+  color: white;
+  font-family: 'Courier New', monospace;
+  font-size: 12px;
+  resize: vertical;
+}
+
+.token p {
+  text-align: center;
+  margin-top: 10px;
+  color: #a1a1aa;
+}
+
+.token a {
+  color: #8b5cf6;
+  text-decoration: none;
+}
+
+.token a:hover {
+  text-decoration: underline;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .navbar {
+    padding: 15px 20px;
+  }
+  
+  .nav-brand h1 {
+    font-size: 1.5rem;
+  }
+  
+  .nav-buttons {
+    gap: 10px;
+  }
+  
+  .btn-signin, .btn-signup {
+    padding: 10px 20px;
+    font-size: 13px;
+  }
+  
+  .auth-card {
+    padding: 30px 20px;
+  }
+}
