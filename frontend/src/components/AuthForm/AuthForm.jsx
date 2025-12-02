@@ -30,7 +30,7 @@ const AuthForm = ({ isLogin, onSubmit, onToggle, onBack, message, token }) => {
       <div className="auth-card">
         <div className="auth-header">
           <div className="logo-container">
-            <h1>RexAI</h1>
+            {/* <h1>RexAI</h1> */}
           </div>
           <h2>{isLogin ? 'Welcome Back' : 'Join RexAI'}</h2>
           <p className="auth-subtitle">

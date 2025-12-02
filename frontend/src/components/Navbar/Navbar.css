@@ -1,0 +1,156 @@
+/* Navbar Styles */
+.navbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  background: rgba(0, 0, 0, 0.95);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid #222;
+  z-index: 1000;
+  padding: 1rem 0;
+}
+
+.nav-container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 3rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+/* Logo */
+.nav-logo h2 {
+  font-size: 1.75rem;
+  font-weight: 800;
+  background: linear-gradient(135deg, #fff, #888);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin: 0;
+}
+
+
+
+/* Right Side Buttons */
+.nav-buttons {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.signin-btn {
+  background: transparent;
+  border: 1px solid #444;
+  color: #fff;
+  padding: 0.75rem 1.75rem;
+  border-radius: 30px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-weight: 500;
+  font-size: 0.95rem;
+}
+
+.signin-btn:hover {
+  background: #fff;
+  color: #000;
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(255, 255, 255, 0.2);
+}
+
+.signup-btn {
+  background: #fff;
+  border: 1px solid #fff;
+  color: #000;
+  padding: 0.75rem 1.75rem;
+  border-radius: 30px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.signup-btn:hover {
+  background: transparent;
+  color: #fff;
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(255, 255, 255, 0.1);
+}
+
+/* User Profile */
+.user-profile {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  position: relative;
+}
+
+.user-greeting {
+  color: #ccc;
+  font-size: 0.95rem;
+  font-weight: 500;
+}
+
+.profile-avatar {
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #333, #555);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: 2px solid #444;
+}
+
+.profile-avatar:hover {
+  background: linear-gradient(135deg, #555, #777);
+  transform: scale(1.05);
+  border-color: #666;
+  box-shadow: 0 5px 15px rgba(255, 255, 255, 0.1);
+}
+
+/* Mobile Responsive */
+@media (max-width: 1024px) {
+  .nav-container {
+    padding: 0 2rem;
+  }
+}
+
+@media (max-width: 768px) {
+  
+  .nav-container {
+    padding: 0 1.5rem;
+  }
+  
+  .nav-buttons {
+    gap: 0.75rem;
+  }
+  
+  .signin-btn,
+  .signup-btn {
+    padding: 0.6rem 1.25rem;
+    font-size: 0.9rem;
+  }
+  
+  .user-greeting {
+    display: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .nav-logo h2 {
+    font-size: 1.5rem;
+  }
+  
+  .signin-btn,
+  .signup-btn {
+    padding: 0.5rem 1rem;
+    font-size: 0.85rem;
+  }
+}

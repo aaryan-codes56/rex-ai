@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import './App.css'
 import Dashboard from './components/Dashboard'
 import AuthForm from './components/AuthForm'
+import HomePage from './components/HomePage'
 
 const API_URL = 'https://rex-ai-hu5w.onrender.com'
 
@@ -120,50 +121,24 @@ function App() {
 
   return (
     <div className="App">
-      <nav className="navbar">
-        <div className="nav-brand">
-          <h1>RexAI</h1>
-        </div>
-        <div className="nav-buttons">
-          {isLoggedIn && user ? (
-            <div className="user-profile" ref={dropdownRef}>
-              <span className="user-greeting">Welcome, {user.name}</span>
-              <div 
-                className="profile-avatar" 
-                onClick={() => setShowDashboard(!showDashboard)}
-              >
-                {user.name.charAt(0).toUpperCase()}
-              </div>
-              <Dashboard 
-                user={user}
-                token={token}
-                showDashboard={showDashboard}
-                onLogout={handleLogout}
-              />
-            </div>
-          ) : (
-            <>
-              <button 
-                className="btn-signin" 
-                onClick={() => { setIsLogin(true); setShowAuth(true); }}
-              >
-                Sign In
-              </button>
-              <button 
-                className="btn-signup" 
-                onClick={() => { setIsLogin(false); setShowAuth(true); }}
-              >
-                Sign Up
-              </button>
-            </>
-          )}
-        </div>
-      </nav>
-      
-      <main className="hero">
-        <h1 className="hero-title">Welcome to RexAI</h1>
-        <p className="hero-subtitle">Your Smart AI-Powered Career Guidance Platform</p>
-      </main>
+      <HomePage 
+        onSignIn={() => { setIsLogin(true); setShowAuth(true); }}
+        onSignUp={() => { setIsLogin(false); setShowAuth(true); }}
+        user={user}
+        isLoggedIn={isLoggedIn}
+        onLogout={handleLogout}
+        showDashboard={showDashboard}
+        setShowDashboard={setShowDashboard}
+        dropdownRef={dropdownRef}
+      />
+      {isLoggedIn && user && (
+        <Dashboard 
+          user={user}
+          token={token}
+          showDashboard={showDashboard}
+          onLogout={handleLogout}
+        />
+      )}
     </div>
   )
 }

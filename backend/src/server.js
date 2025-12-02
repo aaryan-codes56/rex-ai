@@ -1,6 +1,7 @@
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
+const prisma = require('./lib/prisma');
 
 const authRoutes = require('./routes/auth');
 
@@ -25,6 +26,26 @@ app.get('/test', (req, res) => {
 app.use('/api/auth', authRoutes);
 
 const PORT = process.env.PORT || 3001;
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+
+// Connect to database and start server
+async function startServer() {
+  try {
+    await prisma.$connect();
+    console.log('Database connected successfully');
+    
+    app.listen(PORT, () => {
+      console.log(`Server running on port ${PORT}`);
+    });
+  } catch (error) {
+    console.error('Failed to connect to database:', error);
+    process.exit(1);
+  }
+}
+
+startServer();
+
+// Graceful shutdown
+process.on('SIGINT', async () => {
+  await prisma.$disconnect();
+  process.exit(0);
 });
