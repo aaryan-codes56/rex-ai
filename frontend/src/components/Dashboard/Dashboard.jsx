@@ -34,13 +34,8 @@ const Dashboard = ({ user, token, onLogout, onEditProfile }) => {
       }
     } catch (error) {
       console.error('Error fetching enrolled courses:', error);
-      // Fallback: mock enrolled courses
-      const mockEnrolledCourses = [
-        { _id: '1', title: 'React.js Fundamentals', category: 'Technology', instructorName: 'John Doe', progress: 75 },
-        { _id: '3', title: 'Financial Analysis Fundamentals', category: 'Finance', instructorName: 'Robert Brown', progress: 45 },
-        { _id: '7', title: 'Digital Marketing Strategy', category: 'Marketing', instructorName: 'Mike Johnson', progress: 90 }
-      ];
-      setEnrolledCourses(mockEnrolledCourses);
+      // Fallback: empty array when backend is unavailable
+      setEnrolledCourses([]);
     } finally {
       setLoadingCourses(false);
     }

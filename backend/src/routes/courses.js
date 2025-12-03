@@ -107,9 +107,15 @@ router.get('/enrolled', authMiddleware, async (req, res) => {
     .populate('instructor', 'name')
     .sort({ createdAt: -1 });
     
+    // Add mock progress for demo purposes
+    const coursesWithProgress = courses.map(course => ({
+      ...course.toObject(),
+      progress: Math.floor(Math.random() * 100) // Random progress for demo
+    }));
+    
     res.json({ 
-      courses,
-      count: courses.length 
+      courses: coursesWithProgress,
+      count: coursesWithProgress.length 
     });
   } catch (error) {
     console.error('Get enrolled courses error:', error);

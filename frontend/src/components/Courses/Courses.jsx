@@ -5,6 +5,7 @@ import Navbar from '../Navbar';
 
 const Courses = ({ user, onLogout }) => {
   const [courses, setCourses] = useState([]);
+  const [enrolledCourses, setEnrolledCourses] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
@@ -42,7 +43,26 @@ const Courses = ({ user, onLogout }) => {
   useEffect(() => {
     wakeUpBackend();
     fetchCourses();
+    fetchEnrolledCourses();
   }, [filters]);
+
+  const fetchEnrolledCourses = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch('https://rex-ai-hu5w.onrender.com/api/courses/enrolled', {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        setEnrolledCourses(data.courses || []);
+      }
+    } catch (error) {
+      console.error('Error fetching enrolled courses:', error);
+    }
+  };
 
   const handleCourseAction = (course) => {
     if (course.price === 0) {
@@ -67,6 +87,7 @@ const Courses = ({ user, onLogout }) => {
       
       if (response.ok) {
         alert('Enrolled successfully!');
+        fetchEnrolledCourses(); // Refresh enrolled courses
       } else {
         throw new Error('Backend error');
       }
@@ -74,7 +95,12 @@ const Courses = ({ user, onLogout }) => {
       console.error('Error enrolling:', error);
       // Fallback: simulate enrollment
       alert('Enrolled successfully! (Demo mode - backend unavailable)');
+      fetchEnrolledCourses();
     }
+  };
+
+  const isEnrolled = (courseId) => {
+    return enrolledCourses.some(course => course._id === courseId);
   };
 
   const deleteCourse = async (courseId) => {
@@ -289,12 +315,18 @@ const Courses = ({ user, onLogout }) => {
                     </div>
                     
                     <div className="course-actions">
-                      <button 
-                        className={course.price === 0 ? "enroll-btn free" : "enroll-btn paid"}
-                        onClick={() => handleCourseAction(course)}
-                      >
-                        {course.price === 0 ? 'Enroll Free' : `Buy for $${course.price}`}
-                      </button>
+                      {isEnrolled(course._id) ? (
+                        <button className="enrolled-btn" disabled>
+                          ✓ Already Enrolled
+                        </button>
+                      ) : (
+                        <button 
+                          className={course.price === 0 ? "enroll-btn free" : "enroll-btn paid"}
+                          onClick={() => handleCourseAction(course)}
+                        >
+                          {course.price === 0 ? 'Enroll Free' : `Buy for $${course.price}`}
+                        </button>
+                      )}
                       {course.instructorName === (user?.name || 'You') && (
                         <button 
                           className="delete-btn"
