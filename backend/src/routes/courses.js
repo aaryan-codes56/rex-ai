@@ -1,6 +1,7 @@
 const express = require('express');
 const Course = require('../models/Course');
 const authMiddleware = require('../middleware/authMiddleware');
+const mongoose = require('mongoose');
 
 const router = express.Router();
 
@@ -192,7 +193,7 @@ router.post('/seed/sample', async (req, res) => {
         category: 'Technology',
         level: 'Beginner',
         price: 0,
-        instructor: new require('mongoose').Types.ObjectId(),
+        instructor: new mongoose.Types.ObjectId(),
         instructorName: 'John Doe',
         isPublished: true,
         rating: 4.5,
@@ -204,7 +205,7 @@ router.post('/seed/sample', async (req, res) => {
         category: 'Technology',
         level: 'Advanced',
         price: 49,
-        instructor: new require('mongoose').Types.ObjectId(),
+        instructor: new mongoose.Types.ObjectId(),
         instructorName: 'Jane Smith',
         isPublished: true,
         rating: 4.8,
@@ -216,7 +217,7 @@ router.post('/seed/sample', async (req, res) => {
         category: 'Marketing',
         level: 'Intermediate',
         price: 29,
-        instructor: new require('mongoose').Types.ObjectId(),
+        instructor: new mongoose.Types.ObjectId(),
         instructorName: 'Mike Johnson',
         isPublished: true,
         rating: 4.3,
@@ -228,7 +229,7 @@ router.post('/seed/sample', async (req, res) => {
         category: 'Design',
         level: 'Beginner',
         price: 39,
-        instructor: new require('mongoose').Types.ObjectId(),
+        instructor: new mongoose.Types.ObjectId(),
         instructorName: 'Sarah Wilson',
         isPublished: true,
         rating: 4.6,
@@ -240,7 +241,7 @@ router.post('/seed/sample', async (req, res) => {
         category: 'Data Science',
         level: 'Intermediate',
         price: 0,
-        instructor: new require('mongoose').Types.ObjectId(),
+        instructor: new mongoose.Types.ObjectId(),
         instructorName: 'David Chen',
         isPublished: true,
         rating: 4.7,
