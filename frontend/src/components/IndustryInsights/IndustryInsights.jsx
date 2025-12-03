@@ -26,7 +26,14 @@ const IndustryInsights = ({ user, onLogout }) => {
         const industry = user?.industry || 'Technology';
         const token = localStorage.getItem('token');
         
-        const response = await fetch(`https://rex-ai-hu5w.onrender.com/api/insights/${industry}`, {
+        console.log('User object:', user);
+        console.log('User industry from profile:', user?.industry);
+        console.log('Fetching AI-powered insights for:', industry);
+        
+        const apiUrl = `https://rex-ai-hu5w.onrender.com/api/insights/${encodeURIComponent(industry)}`;
+        console.log('Making API call to:', apiUrl);
+        
+        const response = await fetch(apiUrl, {
           headers: {
             'Authorization': `Bearer ${token}`
           }
@@ -34,40 +41,45 @@ const IndustryInsights = ({ user, onLogout }) => {
         
         if (response.ok) {
           const data = await response.json();
+          console.log('Received insights data:', data);
+          console.log('Sample salary role from API:', data.salaryRanges?.[0]?.role);
+          console.log('Expected industry roles for', industry, '- checking if roles match industry');
+          
           // Transform API data to match UI expectations
           const transformedData = {
             marketOutlook: data.marketOutlook,
             industryGrowth: data.growthRate,
             demandLevel: data.demandLevel,
-            topSkills: data.topSkills,
-            salaryRanges: data.salaryRanges.map(range => ({
+            topSkills: data.topSkills || [],
+            salaryRanges: (data.salaryRanges || []).map(range => ({
               role: range.role,
               min: range.min,
               median: range.median,
               max: range.max
             })),
-            trends: data.keyTrends,
-            recommendedSkills: data.recommendedSkills
+            trends: data.keyTrends || [],
+            recommendedSkills: data.recommendedSkills || []
           };
           setInsights(transformedData);
         } else {
-          throw new Error('API failed');
+          const errorText = await response.text();
+          console.error('API Error:', response.status, errorText);
+          throw new Error(`API Error: ${response.status}`);
         }
       } catch (error) {
         console.error('Error fetching insights:', error);
-        // Fallback to mock data
-        const fallbackData = {
-          marketOutlook: 'Positive',
-          industryGrowth: 85,
-          demandLevel: 'High',
-          topSkills: ['JavaScript', 'React', 'Python', 'AWS', 'Docker'],
-          salaryRanges: [
-            { role: 'Junior Developer', min: 60000, median: 75000, max: 90000 },
-            { role: 'Senior Developer', min: 90000, median: 120000, max: 150000 }
-          ],
-          trends: ['AI Integration', 'Cloud Computing', 'Remote Work'],
-          recommendedSkills: ['TypeScript', 'Kubernetes', 'GraphQL']
-        };
+        console.log('Using fallback data for:', user?.industry || 'Technology');
+        console.log('Available fallback industries:', Object.keys(getFallbackInsights('').constructor === Object ? {
+          Technology: true,
+          Sales: true,
+          Finance: true,
+          Healthcare: true,
+          Marketing: true,
+          Education: true
+        } : {}));
+        
+        // Industry-specific fallback data
+        const fallbackData = getFallbackInsights(user?.industry || 'Technology');
         setInsights(fallbackData);
       } finally {
         setLoading(false);
@@ -76,6 +88,107 @@ const IndustryInsights = ({ user, onLogout }) => {
 
     fetchIndustryInsights();
   }, [user?.industry]);
+
+  const getFallbackInsights = (industry) => {
+    const fallbackData = {
+      Technology: {
+        marketOutlook: 'Positive',
+        industryGrowth: 22,
+        demandLevel: 'High',
+        topSkills: ['JavaScript', 'Python', 'React', 'AWS', 'Docker'],
+        salaryRanges: [
+          { role: 'Software Engineer', min: 70000, median: 95000, max: 150000 },
+          { role: 'Data Scientist', min: 80000, median: 110000, max: 160000 },
+          { role: 'Product Manager', min: 90000, median: 125000, max: 180000 },
+          { role: 'DevOps Engineer', min: 75000, median: 105000, max: 155000 },
+          { role: 'Frontend Developer', min: 65000, median: 90000, max: 140000 }
+        ],
+        trends: ['AI Integration', 'Cloud Migration', 'Remote Work', 'Cybersecurity Focus', 'Low-Code Platforms'],
+        recommendedSkills: ['Machine Learning', 'Kubernetes', 'TypeScript', 'GraphQL', 'Microservices']
+      },
+      Sales: {
+        marketOutlook: 'Positive',
+        industryGrowth: 12,
+        demandLevel: 'High',
+        topSkills: ['CRM Software', 'Lead Generation', 'Negotiation', 'Communication', 'Pipeline Management'],
+        salaryRanges: [
+          { role: 'Sales Representative', min: 40000, median: 55000, max: 80000 },
+          { role: 'Account Manager', min: 50000, median: 70000, max: 100000 },
+          { role: 'Sales Manager', min: 70000, median: 95000, max: 140000 },
+          { role: 'Business Development Representative', min: 35000, median: 50000, max: 70000 },
+          { role: 'Sales Director', min: 90000, median: 130000, max: 200000 }
+        ],
+        trends: ['Social Selling', 'Sales Automation', 'AI-Powered CRM', 'Video Prospecting', 'Account-Based Selling'],
+        recommendedSkills: ['Salesforce', 'HubSpot', 'LinkedIn Sales Navigator', 'Sales Analytics', 'Customer Success']
+      },
+      Finance: {
+        marketOutlook: 'Positive',
+        industryGrowth: 8,
+        demandLevel: 'Medium',
+        topSkills: ['Financial Modeling', 'Excel', 'Python', 'SQL', 'Risk Analysis'],
+        salaryRanges: [
+          { role: 'Financial Analyst', min: 55000, median: 75000, max: 120000 },
+          { role: 'Investment Banker', min: 85000, median: 130000, max: 200000 },
+          { role: 'Portfolio Manager', min: 90000, median: 150000, max: 250000 },
+          { role: 'Risk Manager', min: 70000, median: 105000, max: 160000 },
+          { role: 'Quantitative Analyst', min: 80000, median: 120000, max: 180000 }
+        ],
+        trends: ['Digital Banking', 'Cryptocurrency', 'ESG Investing', 'RegTech', 'Robo-Advisors'],
+        recommendedSkills: ['Blockchain', 'Machine Learning', 'Tableau', 'R Programming', 'Financial Planning']
+      },
+      Healthcare: {
+        marketOutlook: 'Positive',
+        industryGrowth: 15,
+        demandLevel: 'High',
+        topSkills: ['Patient Care', 'Medical Records', 'HIPAA Compliance', 'Clinical Research', 'Healthcare IT'],
+        salaryRanges: [
+          { role: 'Registered Nurse', min: 60000, median: 75000, max: 95000 },
+          { role: 'Healthcare Administrator', min: 70000, median: 95000, max: 140000 },
+          { role: 'Medical Technologist', min: 50000, median: 65000, max: 85000 },
+          { role: 'Healthcare Data Analyst', min: 55000, median: 75000, max: 100000 },
+          { role: 'Clinical Research Coordinator', min: 45000, median: 60000, max: 80000 }
+        ],
+        trends: ['Telemedicine', 'AI Diagnostics', 'Personalized Medicine', 'Digital Health Records', 'Preventive Care'],
+        recommendedSkills: ['Electronic Health Records', 'Data Analysis', 'Telehealth Platforms', 'Medical Coding', 'Quality Assurance']
+      },
+      Marketing: {
+        marketOutlook: 'Positive',
+        industryGrowth: 10,
+        demandLevel: 'High',
+        topSkills: ['Digital Marketing', 'SEO', 'Social Media', 'Content Creation', 'Analytics'],
+        salaryRanges: [
+          { role: 'Digital Marketing Specialist', min: 45000, median: 60000, max: 85000 },
+          { role: 'Marketing Manager', min: 65000, median: 85000, max: 130000 },
+          { role: 'Content Marketing Manager', min: 50000, median: 70000, max: 95000 },
+          { role: 'SEO Specialist', min: 40000, median: 55000, max: 80000 },
+          { role: 'Social Media Manager', min: 35000, median: 50000, max: 75000 }
+        ],
+        trends: ['Influencer Marketing', 'Video Content', 'AI-Powered Ads', 'Privacy-First Marketing', 'Omnichannel Strategies'],
+        recommendedSkills: ['Marketing Automation', 'Google Analytics', 'Facebook Ads', 'Email Marketing', 'Conversion Optimization']
+      },
+      Education: {
+        marketOutlook: 'Neutral',
+        industryGrowth: 5,
+        demandLevel: 'Medium',
+        topSkills: ['Curriculum Development', 'Classroom Management', 'Educational Technology', 'Assessment', 'Student Engagement'],
+        salaryRanges: [
+          { role: 'Elementary Teacher', min: 40000, median: 50000, max: 70000 },
+          { role: 'Instructional Designer', min: 50000, median: 65000, max: 90000 },
+          { role: 'Education Administrator', min: 60000, median: 80000, max: 120000 },
+          { role: 'Curriculum Developer', min: 45000, median: 60000, max: 85000 },
+          { role: 'Educational Technology Specialist', min: 50000, median: 70000, max: 95000 }
+        ],
+        trends: ['Online Learning', 'Personalized Education', 'EdTech Integration', 'Competency-Based Learning', 'Hybrid Classrooms'],
+        recommendedSkills: ['Learning Management Systems', 'Educational Apps', 'Data-Driven Instruction', 'Virtual Reality in Education', 'Student Analytics']
+      }
+    };
+    
+    console.log('Fallback data requested for industry:', industry);
+    console.log('Available fallback industries:', Object.keys(fallbackData));
+    const result = fallbackData[industry] || fallbackData.Technology;
+    console.log('Returning fallback data for:', industry, 'Sample role:', result.salaryRanges?.[0]?.role);
+    return result;
+  };
 
   if (loading) {
     return (

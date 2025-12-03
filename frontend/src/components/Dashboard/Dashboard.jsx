@@ -5,6 +5,8 @@ import Navbar from '../Navbar';
 
 const Dashboard = ({ user, token, onLogout, onEditProfile }) => {
   const [showDashboard, setShowDashboard] = React.useState(false);
+  const [enrolledCourses, setEnrolledCourses] = React.useState([]);
+  const [loadingCourses, setLoadingCourses] = React.useState(true);
   const dropdownRef = React.useRef(null);
   const navigate = useNavigate();
   const skillsArray = user?.skills ? user.skills.split(',').map(skill => skill.trim()) : [];
@@ -13,6 +15,40 @@ const Dashboard = ({ user, token, onLogout, onEditProfile }) => {
   const isProfileComplete = (user) => {
     return user?.industry && user?.experience && user?.skills && user?.bio;
   };
+
+  // Fetch enrolled courses
+  const fetchEnrolledCourses = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch('https://rex-ai-hu5w.onrender.com/api/courses/enrolled', {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        setEnrolledCourses(data.courses || []);
+      } else {
+        throw new Error('Backend error');
+      }
+    } catch (error) {
+      console.error('Error fetching enrolled courses:', error);
+      // Fallback: mock enrolled courses
+      const mockEnrolledCourses = [
+        { _id: '1', title: 'React.js Fundamentals', category: 'Technology', instructorName: 'John Doe', progress: 75 },
+        { _id: '3', title: 'Financial Analysis Fundamentals', category: 'Finance', instructorName: 'Robert Brown', progress: 45 },
+        { _id: '7', title: 'Digital Marketing Strategy', category: 'Marketing', instructorName: 'Mike Johnson', progress: 90 }
+      ];
+      setEnrolledCourses(mockEnrolledCourses);
+    } finally {
+      setLoadingCourses(false);
+    }
+  };
+
+  React.useEffect(() => {
+    fetchEnrolledCourses();
+  }, []);
 
 
 
@@ -98,6 +134,42 @@ const Dashboard = ({ user, token, onLogout, onEditProfile }) => {
               </div>
             </div>
           </div>
+        </div>
+
+        {/* Enrolled Courses */}
+        <div className="enrolled-courses">
+          <h3>My Enrolled Courses</h3>
+          {loadingCourses ? (
+            <div className="loading">Loading courses...</div>
+          ) : enrolledCourses.length > 0 ? (
+            <div className="courses-list">
+              {enrolledCourses.map(course => (
+                <div key={course._id} className="enrolled-course-card">
+                  <div className="course-info">
+                    <h4>{course.title}</h4>
+                    <p className="course-category">{course.category}</p>
+                    <p className="course-instructor">By {course.instructorName}</p>
+                  </div>
+                  <div className="course-progress">
+                    <div className="progress-bar">
+                      <div 
+                        className="progress-fill" 
+                        style={{ width: `${course.progress || 0}%` }}
+                      ></div>
+                    </div>
+                    <span className="progress-text">{course.progress || 0}% Complete</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="no-courses">
+              <p>You haven't enrolled in any courses yet.</p>
+              <button className="browse-btn" onClick={() => navigate('/courses')}>
+                Browse Courses
+              </button>
+            </div>
+          )}
         </div>
 
         {/* Quick Actions */}

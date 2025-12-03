@@ -72,7 +72,8 @@ router.post('/', authMiddleware, async (req, res) => {
       level,
       price: price || 0,
       instructor: req.user.id,
-      instructorName: req.user.name
+      instructorName: req.user.name,
+      isPublished: true
     });
     
     await course.save();
@@ -184,9 +185,10 @@ router.delete('/:id', authMiddleware, async (req, res) => {
 router.post('/seed/sample', async (req, res) => {
   try {
     // Clear existing sample courses first
-    await Course.deleteMany({ instructorName: { $in: ['John Doe', 'Jane Smith', 'Mike Johnson', 'Sarah Wilson', 'David Chen'] } });
+    await Course.deleteMany({ instructorName: { $in: ['John Doe', 'Jane Smith', 'Mike Johnson', 'Sarah Wilson', 'David Chen', 'Alex Kumar', 'Lisa Wang', 'Robert Brown', 'Emma Davis', 'Carlos Rodriguez'] } });
     
     const sampleCourses = [
+      // Technology Courses
       {
         title: 'React.js Fundamentals',
         description: 'Learn the basics of React.js and build modern web applications with hooks, components, and state management.',
@@ -212,6 +214,105 @@ router.post('/seed/sample', async (req, res) => {
         totalRatings: 89
       },
       {
+        title: 'Full Stack Web Development',
+        description: 'Complete course covering frontend and backend development with modern technologies.',
+        category: 'Technology',
+        level: 'Intermediate',
+        price: 79,
+        instructor: new mongoose.Types.ObjectId(),
+        instructorName: 'Alex Kumar',
+        isPublished: true,
+        rating: 4.7,
+        totalRatings: 203
+      },
+      {
+        title: 'Cloud Computing with AWS',
+        description: 'Learn cloud infrastructure, deployment, and scaling with Amazon Web Services.',
+        category: 'Technology',
+        level: 'Advanced',
+        price: 99,
+        instructor: new mongoose.Types.ObjectId(),
+        instructorName: 'Lisa Wang',
+        isPublished: true,
+        rating: 4.6,
+        totalRatings: 145
+      },
+      // Finance Courses
+      {
+        title: 'Financial Analysis Fundamentals',
+        description: 'Master financial statement analysis, ratios, and valuation techniques for investment decisions.',
+        category: 'Finance',
+        level: 'Beginner',
+        price: 59,
+        instructor: new mongoose.Types.ObjectId(),
+        instructorName: 'Robert Brown',
+        isPublished: true,
+        rating: 4.4,
+        totalRatings: 87
+      },
+      {
+        title: 'Investment Portfolio Management',
+        description: 'Learn portfolio theory, risk management, and asset allocation strategies.',
+        category: 'Finance',
+        level: 'Intermediate',
+        price: 89,
+        instructor: new mongoose.Types.ObjectId(),
+        instructorName: 'Emma Davis',
+        isPublished: true,
+        rating: 4.5,
+        totalRatings: 112
+      },
+      {
+        title: 'Cryptocurrency and Blockchain',
+        description: 'Understanding digital currencies, blockchain technology, and DeFi applications.',
+        category: 'Finance',
+        level: 'Intermediate',
+        price: 0,
+        instructor: new mongoose.Types.ObjectId(),
+        instructorName: 'Carlos Rodriguez',
+        isPublished: true,
+        rating: 4.3,
+        totalRatings: 156
+      },
+      // Healthcare Courses
+      {
+        title: 'Healthcare Data Analytics',
+        description: 'Analyze healthcare data to improve patient outcomes and operational efficiency.',
+        category: 'Healthcare',
+        level: 'Intermediate',
+        price: 69,
+        instructor: new mongoose.Types.ObjectId(),
+        instructorName: 'Dr. Sarah Wilson',
+        isPublished: true,
+        rating: 4.6,
+        totalRatings: 78
+      },
+      {
+        title: 'Medical Device Regulations',
+        description: 'Navigate FDA regulations and compliance requirements for medical devices.',
+        category: 'Healthcare',
+        level: 'Advanced',
+        price: 129,
+        instructor: new mongoose.Types.ObjectId(),
+        instructorName: 'Dr. Mike Johnson',
+        isPublished: true,
+        rating: 4.7,
+        totalRatings: 45
+      },
+      {
+        title: 'Telemedicine Implementation',
+        description: 'Learn to implement and manage telehealth solutions in healthcare organizations.',
+        category: 'Healthcare',
+        level: 'Beginner',
+        price: 0,
+        instructor: new mongoose.Types.ObjectId(),
+        instructorName: 'Dr. Lisa Wang',
+        isPublished: true,
+        rating: 4.4,
+        totalRatings: 92
+      },
+      // Marketing Courses
+      {
         title: 'Digital Marketing Strategy',
         description: 'Learn effective digital marketing strategies for modern businesses including SEO, social media, and analytics.',
         category: 'Marketing',
@@ -223,6 +324,68 @@ router.post('/seed/sample', async (req, res) => {
         rating: 4.3,
         totalRatings: 67
       },
+      {
+        title: 'Social Media Marketing Mastery',
+        description: 'Master social media platforms, content creation, and audience engagement strategies.',
+        category: 'Marketing',
+        level: 'Beginner',
+        price: 39,
+        instructor: new mongoose.Types.ObjectId(),
+        instructorName: 'Emma Davis',
+        isPublished: true,
+        rating: 4.5,
+        totalRatings: 134
+      },
+      {
+        title: 'Email Marketing Automation',
+        description: 'Build automated email campaigns that convert leads into customers.',
+        category: 'Marketing',
+        level: 'Intermediate',
+        price: 0,
+        instructor: new mongoose.Types.ObjectId(),
+        instructorName: 'Carlos Rodriguez',
+        isPublished: true,
+        rating: 4.2,
+        totalRatings: 89
+      },
+      // Education Courses
+      {
+        title: 'Online Course Creation',
+        description: 'Learn to create, market, and sell online courses effectively.',
+        category: 'Education',
+        level: 'Beginner',
+        price: 49,
+        instructor: new mongoose.Types.ObjectId(),
+        instructorName: 'Dr. Sarah Wilson',
+        isPublished: true,
+        rating: 4.6,
+        totalRatings: 167
+      },
+      {
+        title: 'Educational Technology Integration',
+        description: 'Integrate technology tools and platforms into educational curricula.',
+        category: 'Education',
+        level: 'Intermediate',
+        price: 59,
+        instructor: new mongoose.Types.ObjectId(),
+        instructorName: 'Alex Kumar',
+        isPublished: true,
+        rating: 4.4,
+        totalRatings: 73
+      },
+      {
+        title: 'Student Assessment Strategies',
+        description: 'Develop effective assessment methods for measuring student learning outcomes.',
+        category: 'Education',
+        level: 'Advanced',
+        price: 0,
+        instructor: new mongoose.Types.ObjectId(),
+        instructorName: 'Dr. Lisa Wang',
+        isPublished: true,
+        rating: 4.5,
+        totalRatings: 56
+      },
+      // Design & Data Science
       {
         title: 'UI/UX Design Principles',
         description: 'Master the fundamentals of user interface and user experience design with practical projects.',

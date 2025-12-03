@@ -48,6 +48,7 @@ app.use('/api/courses', courseRoutes);
 app.use('/api/careers', careerRoutes);
 app.use('/api/resume', resumeRoutes);
 app.use('/api/insights', insightsRoutes);
+app.use('/api/interview', require('./routes/interview'));
 
 const PORT = process.env.PORT || 3001;
 

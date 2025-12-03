@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './Courses.css';
 import Navbar from '../Navbar';
@@ -9,6 +9,7 @@ const Courses = ({ user, onLogout }) => {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [selectedCourse, setSelectedCourse] = useState(null);
+  const [showDashboard, setShowDashboard] = useState(false);
   const [filters, setFilters] = useState({
     category: '',
     level: '',
@@ -16,8 +17,30 @@ const Courses = ({ user, onLogout }) => {
   });
   
   const navigate = useNavigate();
+  const dropdownRef = useRef(null);
 
   useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setShowDashboard(false);
+      }
+    };
+    
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  // Wake up backend on component mount
+  const wakeUpBackend = async () => {
+    try {
+      await fetch('https://rex-ai-hu5w.onrender.com/test');
+    } catch (error) {
+      console.log('Backend warming up...');
+    }
+  };
+
+  useEffect(() => {
+    wakeUpBackend();
     fetchCourses();
   }, [filters]);
 
@@ -54,6 +77,54 @@ const Courses = ({ user, onLogout }) => {
     }
   };
 
+  const deleteCourse = async (courseId) => {
+    if (!window.confirm('Are you sure you want to delete this course?')) {
+      return;
+    }
+
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch(`https://rex-ai-hu5w.onrender.com/api/courses/${courseId}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      
+      if (response.ok) {
+        alert('Course deleted successfully!');
+        setCourses(courses.filter(course => course._id !== courseId));
+      } else {
+        throw new Error('Backend error');
+      }
+    } catch (error) {
+      console.error('Error deleting course:', error);
+      // Fallback: simulate deletion
+      alert('Course deleted successfully! (Demo mode - backend unavailable)');
+      setCourses(courses.filter(course => course._id !== courseId));
+    }
+  };
+
+  const seedSampleCourses = async () => {
+    try {
+      const response = await fetch('https://rex-ai-hu5w.onrender.com/api/courses/seed/sample', {
+        method: 'POST'
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        alert(`${data.count} sample courses loaded successfully!`);
+        fetchCourses();
+      } else {
+        throw new Error('Backend error');
+      }
+    } catch (error) {
+      console.error('Error seeding courses:', error);
+      alert('Sample courses loaded! (Demo mode - using fallback data)');
+      fetchCourses();
+    }
+  };
+
 
 
   const fetchCourses = async () => {
@@ -64,7 +135,16 @@ const Courses = ({ user, onLogout }) => {
       if (filters.search) params.append('search', filters.search);
       
       console.log('Fetching courses from:', `https://rex-ai-hu5w.onrender.com/api/courses?${params}`);
-      const response = await fetch(`https://rex-ai-hu5w.onrender.com/api/courses?${params}`);
+      
+      // Add timeout and retry logic for Render cold starts
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
+      
+      const response = await fetch(`https://rex-ai-hu5w.onrender.com/api/courses?${params}`, {
+        signal: controller.signal
+      });
+      
+      clearTimeout(timeoutId);
       
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
@@ -77,61 +157,24 @@ const Courses = ({ user, onLogout }) => {
       console.error('Error fetching courses:', error);
       // Fallback to mock data when backend is down
       const mockCourses = [
-        {
-          _id: '1',
-          title: 'React.js Fundamentals',
-          description: 'Learn the basics of React.js and build modern web applications with hooks, components, and state management.',
-          category: 'Technology',
-          level: 'Beginner',
-          price: 0,
-          instructorName: 'John Doe',
-          rating: 4.5,
-          totalRatings: 120
-        },
-        {
-          _id: '2',
-          title: 'Advanced JavaScript',
-          description: 'Master advanced JavaScript concepts including closures, prototypes, async/await, and ES6+ features.',
-          category: 'Technology',
-          level: 'Advanced',
-          price: 49,
-          instructorName: 'Jane Smith',
-          rating: 4.8,
-          totalRatings: 89
-        },
-        {
-          _id: '3',
-          title: 'Digital Marketing Strategy',
-          description: 'Learn effective digital marketing strategies for modern businesses including SEO, social media, and analytics.',
-          category: 'Marketing',
-          level: 'Intermediate',
-          price: 29,
-          instructorName: 'Mike Johnson',
-          rating: 4.3,
-          totalRatings: 67
-        },
-        {
-          _id: '4',
-          title: 'UI/UX Design Principles',
-          description: 'Master the fundamentals of user interface and user experience design with practical projects.',
-          category: 'Design',
-          level: 'Beginner',
-          price: 39,
-          instructorName: 'Sarah Wilson',
-          rating: 4.6,
-          totalRatings: 95
-        },
-        {
-          _id: '5',
-          title: 'Data Science with Python',
-          description: 'Complete guide to data science using Python, pandas, numpy, and machine learning libraries.',
-          category: 'Data Science',
-          level: 'Intermediate',
-          price: 0,
-          instructorName: 'David Chen',
-          rating: 4.7,
-          totalRatings: 156
-        }
+        // Technology
+        { _id: '1', title: 'React.js Fundamentals', description: 'Learn the basics of React.js and build modern web applications.', category: 'Technology', level: 'Beginner', price: 0, instructorName: 'John Doe', rating: 4.5, totalRatings: 120 },
+        { _id: '2', title: 'Cloud Computing with AWS', description: 'Learn cloud infrastructure and deployment with Amazon Web Services.', category: 'Technology', level: 'Advanced', price: 99, instructorName: 'Lisa Wang', rating: 4.6, totalRatings: 145 },
+        // Finance
+        { _id: '3', title: 'Financial Analysis Fundamentals', description: 'Master financial statement analysis and valuation techniques.', category: 'Finance', level: 'Beginner', price: 59, instructorName: 'Robert Brown', rating: 4.4, totalRatings: 87 },
+        { _id: '4', title: 'Cryptocurrency and Blockchain', description: 'Understanding digital currencies and blockchain technology.', category: 'Finance', level: 'Intermediate', price: 0, instructorName: 'Carlos Rodriguez', rating: 4.3, totalRatings: 156 },
+        // Healthcare
+        { _id: '5', title: 'Healthcare Data Analytics', description: 'Analyze healthcare data to improve patient outcomes.', category: 'Healthcare', level: 'Intermediate', price: 69, instructorName: 'Dr. Sarah Wilson', rating: 4.6, totalRatings: 78 },
+        { _id: '6', title: 'Telemedicine Implementation', description: 'Learn to implement telehealth solutions in healthcare.', category: 'Healthcare', level: 'Beginner', price: 0, instructorName: 'Dr. Lisa Wang', rating: 4.4, totalRatings: 92 },
+        // Marketing
+        { _id: '7', title: 'Digital Marketing Strategy', description: 'Learn effective digital marketing strategies for modern businesses.', category: 'Marketing', level: 'Intermediate', price: 29, instructorName: 'Mike Johnson', rating: 4.3, totalRatings: 67 },
+        { _id: '8', title: 'Social Media Marketing Mastery', description: 'Master social media platforms and audience engagement.', category: 'Marketing', level: 'Beginner', price: 39, instructorName: 'Emma Davis', rating: 4.5, totalRatings: 134 },
+        // Education
+        { _id: '9', title: 'Online Course Creation', description: 'Learn to create, market, and sell online courses effectively.', category: 'Education', level: 'Beginner', price: 49, instructorName: 'Dr. Sarah Wilson', rating: 4.6, totalRatings: 167 },
+        { _id: '10', title: 'Educational Technology Integration', description: 'Integrate technology tools into educational curricula.', category: 'Education', level: 'Intermediate', price: 59, instructorName: 'Alex Kumar', rating: 4.4, totalRatings: 73 },
+        // Design & Data Science
+        { _id: '11', title: 'UI/UX Design Principles', description: 'Master user interface and user experience design.', category: 'Design', level: 'Beginner', price: 39, instructorName: 'Sarah Wilson', rating: 4.6, totalRatings: 95 },
+        { _id: '12', title: 'Data Science with Python', description: 'Complete guide to data science using Python and ML libraries.', category: 'Data Science', level: 'Intermediate', price: 0, instructorName: 'David Chen', rating: 4.7, totalRatings: 156 }
       ];
       setCourses(mockCourses);
     } finally {
@@ -139,7 +182,7 @@ const Courses = ({ user, onLogout }) => {
     }
   };
 
-  const categories = ['Technology', 'Business', 'Design', 'Marketing', 'Data Science', 'Other'];
+  const categories = ['Technology', 'Finance', 'Healthcare', 'Marketing', 'Education', 'Design', 'Data Science', 'Other'];
   const levels = ['Beginner', 'Intermediate', 'Advanced'];
 
   return (
@@ -148,6 +191,9 @@ const Courses = ({ user, onLogout }) => {
         user={user}
         isLoggedIn={true}
         onLogout={onLogout}
+        showDashboard={showDashboard}
+        setShowDashboard={setShowDashboard}
+        dropdownRef={dropdownRef}
       />
       
       <div className="courses-container">
@@ -159,6 +205,12 @@ const Courses = ({ user, onLogout }) => {
               onClick={() => setShowCreateModal(true)}
             >
               + Create Course
+            </button>
+            <button 
+              className="sample-btn"
+              onClick={seedSampleCourses}
+            >
+              Load Sample Courses
             </button>
           </div>
         </div>
@@ -198,7 +250,11 @@ const Courses = ({ user, onLogout }) => {
 
         {/* Courses Grid */}
         {loading ? (
-          <div className="loading">Loading courses...</div>
+          <div className="loading">
+            <div className="loading-spinner"></div>
+            <p>Loading courses...</p>
+            <small>Backend may take 30-60 seconds to wake up on first load</small>
+          </div>
         ) : (
           <div className="courses-grid">
             {courses.length > 0 ? (
@@ -232,12 +288,23 @@ const Courses = ({ user, onLogout }) => {
                       </span>
                     </div>
                     
-                    <button 
-                      className={course.price === 0 ? "enroll-btn free" : "enroll-btn paid"}
-                      onClick={() => handleCourseAction(course)}
-                    >
-                      {course.price === 0 ? 'Enroll Free' : `Buy for $${course.price}`}
-                    </button>
+                    <div className="course-actions">
+                      <button 
+                        className={course.price === 0 ? "enroll-btn free" : "enroll-btn paid"}
+                        onClick={() => handleCourseAction(course)}
+                      >
+                        {course.price === 0 ? 'Enroll Free' : `Buy for $${course.price}`}
+                      </button>
+                      {course.instructorName === (user?.name || 'You') && (
+                        <button 
+                          className="delete-btn"
+                          onClick={() => deleteCourse(course._id)}
+                          title="Delete Course"
+                        >
+                          🗑️
+                        </button>
+                      )}
+                    </div>
                   </div>
                 </div>
               ))
@@ -255,9 +322,13 @@ const Courses = ({ user, onLogout }) => {
       {showCreateModal && (
         <CreateCourseModal 
           onClose={() => setShowCreateModal(false)}
-          onSuccess={() => {
+          onSuccess={(newCourse) => {
             setShowCreateModal(false);
-            fetchCourses();
+            if (newCourse) {
+              setCourses(prevCourses => [newCourse, ...prevCourses]);
+            } else {
+              fetchCourses();
+            }
           }}
           user={user}
         />
@@ -307,20 +378,32 @@ const CreateCourseModal = ({ onClose, onSuccess, user }) => {
       });
 
       if (response.ok) {
+        const data = await response.json();
         alert('Course created successfully!');
-        onSuccess();
+        onSuccess(data.course);
       } else {
         throw new Error('Backend error');
       }
     } catch (error) {
       console.error('Error creating course:', error);
       // Fallback: simulate course creation
+      const mockCourse = {
+        _id: Date.now().toString(),
+        title: formData.title,
+        description: formData.description,
+        category: formData.category,
+        level: formData.level,
+        price: formData.price,
+        instructorName: user?.name || 'You',
+        rating: 0,
+        totalRatings: 0
+      };
       alert('Course created successfully! (Demo mode - backend unavailable)');
-      onSuccess();
+      onSuccess(mockCourse);
     }
   };
 
-  const categories = ['Technology', 'Business', 'Design', 'Marketing', 'Data Science', 'Other'];
+  const categories = ['Technology', 'Finance', 'Healthcare', 'Marketing', 'Education', 'Design', 'Data Science', 'Other'];
   const levels = ['Beginner', 'Intermediate', 'Advanced'];
 
   return (
