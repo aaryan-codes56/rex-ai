@@ -8,22 +8,13 @@ const Dashboard = ({ user, token, onLogout, onEditProfile }) => {
   const dropdownRef = React.useRef(null);
   const navigate = useNavigate();
   const skillsArray = user?.skills ? user.skills.split(',').map(skill => skill.trim()) : [];
-
-  const checkDatabaseData = async () => {
-    try {
-      const response = await fetch('https://rex-ai-hu5w.onrender.com/api/debug/user-data', {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
-      const data = await response.json();
-      console.log('=== DATABASE DATA ===');
-      console.log(data);
-      alert('Check console for database data');
-    } catch (error) {
-      console.error('Error fetching database data:', error);
-    }
+  
+  // Check if profile is complete
+  const isProfileComplete = (user) => {
+    return user?.industry && user?.experience && user?.skills && user?.bio;
   };
+
+
 
   // Close dropdown when clicking outside
   React.useEffect(() => {
@@ -73,10 +64,7 @@ const Dashboard = ({ user, token, onLogout, onEditProfile }) => {
                 console.log('onEditProfile function:', onEditProfile);
                 onEditProfile();
               }}>
-                Complete Profile
-              </button>
-              <button className="debug-btn" onClick={checkDatabaseData}>
-                Check DB Data
+                {isProfileComplete(user) ? 'Edit Profile' : 'Complete Profile'}
               </button>
             </div>
 
@@ -116,20 +104,29 @@ const Dashboard = ({ user, token, onLogout, onEditProfile }) => {
         <div className="quick-actions">
           <h3>Quick Actions</h3>
           <div className="actions-grid">
-            <div className="action-card">
+            <div className="action-card" onClick={() => navigate('/insights')}>
               <div className="action-icon">📊</div>
               <h4>Industry Insights</h4>
               <p>View market trends and salary data</p>
+              <div className="action-arrow">→</div>
             </div>
-            <div className="action-card">
+            <div className="action-card" onClick={() => navigate('/courses')}>
+              <div className="action-icon">📚</div>
+              <h4>Browse Courses</h4>
+              <p>Explore available courses and enroll</p>
+              <div className="action-arrow">→</div>
+            </div>
+            <div className="action-card" onClick={() => navigate('/resume')}>
               <div className="action-icon">📄</div>
               <h4>Build Resume</h4>
               <p>Create and download your resume</p>
+              <div className="action-arrow">→</div>
             </div>
-            <div className="action-card">
+            <div className="action-card" onClick={() => navigate('/interview')}>
               <div className="action-icon">🎯</div>
               <h4>Interview Prep</h4>
               <p>Practice with mock interviews</p>
+              <div className="action-arrow">→</div>
             </div>
           </div>
         </div>

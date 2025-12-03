@@ -22,8 +22,7 @@ const ResumeBuilder = ({ user, onLogout }) => {
     contactInfo: {
       email: user.email || '',
       mobile: '',
-      linkedin: '',
-      twitter: ''
+      linkedin: ''
     },
     summary: '',
     skills: user.skills || '',
@@ -107,7 +106,6 @@ const ResumeBuilder = ({ user, onLogout }) => {
 - **Email:** ${resumeData.contactInfo.email}
 - **Mobile:** ${resumeData.contactInfo.mobile}
 - **LinkedIn:** ${resumeData.contactInfo.linkedin}
-- **Twitter:** ${resumeData.contactInfo.twitter}
 
 ## Professional Summary
 ${resumeData.summary}
@@ -182,12 +180,6 @@ ${exp.description}
                   placeholder="LinkedIn URL"
                   value={resumeData.contactInfo.linkedin}
                   onChange={(e) => handleContactChange('linkedin', e.target.value)}
-                />
-                <input
-                  type="url"
-                  placeholder="Twitter URL"
-                  value={resumeData.contactInfo.twitter}
-                  onChange={(e) => handleContactChange('twitter', e.target.value)}
                 />
               </div>
             </div>

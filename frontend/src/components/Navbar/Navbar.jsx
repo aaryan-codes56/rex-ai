@@ -14,7 +14,6 @@ const Navbar = ({
   onNavigate,
   showProfile = false
 }) => {
-  const [showGrowthDropdown, setShowGrowthDropdown] = React.useState(false);
   const navigate = useNavigate();
 
   const handleNavigation = (page) => {
@@ -24,7 +23,6 @@ const Navbar = ({
       navigate(`/${page}`);
     }
     setShowDashboard(false);
-    setShowGrowthDropdown(false);
   };
 
   return (
@@ -38,25 +36,31 @@ const Navbar = ({
           <div className="nav-links">
             <button 
               className="nav-link" 
+              onClick={() => handleNavigation('courses')}
+            >
+              Courses
+            </button>
+            
+            <button 
+              className="nav-link" 
               onClick={() => handleNavigation('insights')}
             >
               Industry Insights
             </button>
             
-            <div className="dropdown-container">
-              <button 
-                className="nav-link dropdown-trigger"
-                onClick={() => setShowGrowthDropdown(!showGrowthDropdown)}
-              >
-                Growth Tools ▼
-              </button>
-              {showGrowthDropdown && (
-                <div className="dropdown-menu">
-                  <button onClick={() => handleNavigation('resume')}>Build Resume</button>
-                  <button onClick={() => handleNavigation('interview')}>Interview Prep</button>
-                </div>
-              )}
-            </div>
+            <button 
+              className="nav-link" 
+              onClick={() => handleNavigation('resume')}
+            >
+              Resume Builder
+            </button>
+            
+            <button 
+              className="nav-link" 
+              onClick={() => handleNavigation('interview')}
+            >
+              Interview Prep
+            </button>
           </div>
         )}
 

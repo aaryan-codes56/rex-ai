@@ -8,6 +8,7 @@ import ProfileModal from './components/ProfileModal'
 import IndustryInsights from './components/IndustryInsights'
 import ResumeBuilder from './components/ResumeBuilder'
 import InterviewPrep from './components/InterviewPrep'
+import Courses from './components/Courses/Courses'
 
 const API_URL = 'https://rex-ai-hu5w.onrender.com'
 
@@ -305,6 +306,12 @@ function App() {
         } />
         <Route path="/interview" element={
           <InterviewPrep 
+            user={user}
+            onLogout={handleLogout}
+          />
+        } />
+        <Route path="/courses" element={
+          <Courses 
             user={user}
             onLogout={handleLogout}
           />

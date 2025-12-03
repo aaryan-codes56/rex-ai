@@ -6,6 +6,9 @@ const mongoose = require('mongoose');
 const authRoutes = require('./routes/auth');
 const profileRoutes = require('./routes/profile');
 const debugRoutes = require('./routes/debug');
+const courseRoutes = require('./routes/courses');
+const careerRoutes = require('./routes/careers');
+const resumeRoutes = require('./routes/resume');
 
 const app = express();
 
@@ -38,7 +41,11 @@ app.get('/test', (req, res) => {
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/profile', profileRoutes);
+app.use('/api/user', profileRoutes); // Alias for user profile
 app.use('/api/debug', debugRoutes);
+app.use('/api/courses', courseRoutes);
+app.use('/api/careers', careerRoutes);
+app.use('/api/resume', resumeRoutes);
 
 const PORT = process.env.PORT || 3001;
 

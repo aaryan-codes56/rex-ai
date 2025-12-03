@@ -270,15 +270,29 @@ const HomePage = ({ onSignIn, onSignUp, user, isLoggedIn, onLogout, showDashboar
       </section>
 
       {/* CTA Section */}
-      <section className="cta-section">
-        <div className="cta-container">
-          <h2 className="cta-title">Ready to Accelerate Your Career?</h2>
-          <p className="cta-subtitle">
-            Join thousands of professionals who have transformed their careers with RexAI
-          </p>
-          <button className="cta-button" onClick={onSignUp}>Start Your Journey Today →</button>
-        </div>
-      </section>
+      {!isLoggedIn && (
+        <section className="cta-section">
+          <div className="cta-container">
+            <h2 className="cta-title">Ready to Accelerate Your Career?</h2>
+            <p className="cta-subtitle">
+              Join thousands of professionals who have transformed their careers with RexAI
+            </p>
+            <button className="cta-button" onClick={onSignUp}>Start Your Journey Today →</button>
+          </div>
+        </section>
+      )}
+      
+      {isLoggedIn && (
+        <section className="cta-section">
+          <div className="cta-container">
+            <h2 className="cta-title">Welcome back, {user?.name}!</h2>
+            <p className="cta-subtitle">
+              Continue your professional growth journey with personalized recommendations
+            </p>
+            <button className="cta-button" onClick={() => onNavigate('dashboard')}>Go to Dashboard →</button>
+          </div>
+        </section>
+      )}
     </div>
   );
 };
