@@ -1,15 +1,64 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import './Navbar.css';
 
-const Navbar = ({ user, isLoggedIn, onSignIn, onSignUp, onLogout, showDashboard, setShowDashboard, dropdownRef }) => {
+const Navbar = ({ 
+  user, 
+  isLoggedIn, 
+  onSignIn, 
+  onSignUp, 
+  onLogout, 
+  showDashboard, 
+  setShowDashboard, 
+  dropdownRef,
+  onNavigate,
+  showProfile = false
+}) => {
+  const [showGrowthDropdown, setShowGrowthDropdown] = React.useState(false);
+  const navigate = useNavigate();
+
+  const handleNavigation = (page) => {
+    if (onNavigate) {
+      onNavigate(page);
+    } else {
+      navigate(`/${page}`);
+    }
+    setShowDashboard(false);
+    setShowGrowthDropdown(false);
+  };
+
   return (
     <nav className="navbar">
       <div className="nav-container">
-        <div className="nav-logo">
+        <div className="nav-logo" onClick={() => navigate('/')}>
           <h2>RexAI</h2>
         </div>
         
-
+        {isLoggedIn && user && (
+          <div className="nav-links">
+            <button 
+              className="nav-link" 
+              onClick={() => handleNavigation('insights')}
+            >
+              Industry Insights
+            </button>
+            
+            <div className="dropdown-container">
+              <button 
+                className="nav-link dropdown-trigger"
+                onClick={() => setShowGrowthDropdown(!showGrowthDropdown)}
+              >
+                Growth Tools ▼
+              </button>
+              {showGrowthDropdown && (
+                <div className="dropdown-menu">
+                  <button onClick={() => handleNavigation('resume')}>Build Resume</button>
+                  <button onClick={() => handleNavigation('interview')}>Interview Prep</button>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
 
         <div className="nav-buttons">
           {isLoggedIn && user ? (
@@ -19,8 +68,14 @@ const Navbar = ({ user, isLoggedIn, onSignIn, onSignUp, onLogout, showDashboard,
                 className="profile-avatar" 
                 onClick={() => setShowDashboard(!showDashboard)}
               >
-                {user.name.charAt(0).toUpperCase()}
+                {user.name?.charAt(0).toUpperCase() || 'U'}
               </div>
+              {showDashboard && (
+                <div className="profile-dropdown">
+                  <button onClick={() => handleNavigation('dashboard')}>Dashboard</button>
+                  <button onClick={onLogout}>Logout</button>
+                </div>
+              )}
             </div>
           ) : (
             <>

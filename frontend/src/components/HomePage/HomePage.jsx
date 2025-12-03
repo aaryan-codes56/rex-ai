@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import './HomePage.css';
 import Navbar from '../Navbar';
 
-const HomePage = ({ onSignIn, onSignUp, user, isLoggedIn, onLogout, showDashboard, setShowDashboard, dropdownRef }) => {
+const HomePage = ({ onSignIn, onSignUp, user, isLoggedIn, onLogout, showDashboard, setShowDashboard, dropdownRef, onNavigate }) => {
   const [openFAQ, setOpenFAQ] = useState(null);
   const [isVisible, setIsVisible] = useState({});
 
@@ -136,6 +136,7 @@ const HomePage = ({ onSignIn, onSignUp, user, isLoggedIn, onLogout, showDashboar
         showDashboard={showDashboard}
         setShowDashboard={setShowDashboard}
         dropdownRef={dropdownRef}
+        onNavigate={onNavigate}
       />
 
       {/* Hero Section */}
@@ -143,16 +144,20 @@ const HomePage = ({ onSignIn, onSignUp, user, isLoggedIn, onLogout, showDashboar
         <div className="hero-container">
           <h1 className="hero-title">
             Your AI Career Coach for 
-            <span className="gradient-text"> Professional Success</span>
+            <span className="gradient-text" data-text=" Professional Success"> Professional Success</span>
           </h1>
           <p className="hero-subtitle">
             Unlock your potential with personalized career guidance, smart course recommendations, 
             and AI-powered resume building - all in one intelligent platform.
           </p>
-          <div className="hero-buttons">
-            <button className="btn-primary" onClick={onSignUp}>Get Started</button>
-            <button className="btn-secondary">Watch Demo</button>
-          </div>
+          {!isLoggedIn && (
+            <div className="hero-buttons">
+              <button className="btn-primary" onClick={onSignUp}>Get Started</button>
+              <button className="btn-secondary" onClick={() => {
+                document.getElementById('features').scrollIntoView({ behavior: 'smooth' });
+              }}>Explore Features</button>
+            </div>
+          )}
         </div>
       </section>
 
@@ -162,7 +167,15 @@ const HomePage = ({ onSignIn, onSignUp, user, isLoggedIn, onLogout, showDashboar
           <h2 className="section-title">Powerful Features for Your Success</h2>
           <div className="features-grid">
             {features.map((feature, index) => (
-              <div key={index} className="feature-card">
+              <div 
+                key={index} 
+                className="feature-card"
+                style={{ '--index': index }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.setProperty('--mouse-x', '50%');
+                  e.currentTarget.style.setProperty('--mouse-y', '50%');
+                }}
+              >
                 <div className="feature-icon">{feature.icon}</div>
                 <h3 className="feature-title">{feature.title}</h3>
                 <p className="feature-description">{feature.description}</p>
@@ -192,7 +205,11 @@ const HomePage = ({ onSignIn, onSignUp, user, isLoggedIn, onLogout, showDashboar
           <h2 className="section-title">How It Works</h2>
           <div className="steps-grid">
             {steps.map((step, index) => (
-              <div key={index} className="step-item">
+              <div 
+                key={index} 
+                className="step-item"
+                style={{ '--index': index }}
+              >
                 <div className="step-number">{step.number}</div>
                 <h3 className="step-title">{step.title}</h3>
                 <p className="step-description">{step.description}</p>
@@ -208,7 +225,11 @@ const HomePage = ({ onSignIn, onSignUp, user, isLoggedIn, onLogout, showDashboar
           <h2 className="section-title">What Our Users Say</h2>
           <div className="testimonials-grid">
             {testimonials.map((testimonial, index) => (
-              <div key={index} className="testimonial-card">
+              <div 
+                key={index} 
+                className="testimonial-card"
+                style={{ '--index': index }}
+              >
                 <div className="testimonial-avatar">
                   {testimonial.name.charAt(0)}
                 </div>

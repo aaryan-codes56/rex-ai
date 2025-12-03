@@ -1,33 +1,64 @@
+const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
-const prisma = require('../lib/prisma');
 
-class User {
-  static async create({ name, email, password }) {
-    const hashedPassword = await bcrypt.hash(password, 12);
-    return await prisma.user.create({
-      data: {
-        name,
-        email: email.toLowerCase(),
-        password: hashedPassword
-      }
-    });
+const userSchema = new mongoose.Schema({
+  name: {
+    type: String,
+    required: true,
+    trim: true
+  },
+  email: {
+    type: String,
+    required: true,
+    unique: true,
+    lowercase: true,
+    trim: true
+  },
+  password: {
+    type: String,
+    required: true
+  },
+  industry: {
+    type: String,
+    default: ''
+  },
+  experience: {
+    type: Number,
+    default: 0
+  },
+  skills: {
+    type: String,
+    default: ''
+  },
+  bio: {
+    type: String,
+    default: ''
+  },
+  role: {
+    type: String,
+    default: 'user'
   }
+}, {
+  timestamps: true
+});
 
-  static async findByEmail(email) {
-    return await prisma.user.findUnique({
-      where: { email: email.toLowerCase() }
-    });
-  }
+// Hash password before saving
+userSchema.pre('save', async function(next) {
+  if (!this.isModified('password')) return next();
+  this.password = await bcrypt.hash(this.password, 12);
+  next();
+});
 
-  static async findById(id) {
-    return await prisma.user.findUnique({
-      where: { id }
-    });
-  }
+// Compare password method
+userSchema.methods.comparePassword = async function(candidatePassword) {
+  return await bcrypt.compare(candidatePassword, this.password);
+};
 
-  static async comparePassword(candidatePassword, hashedPassword) {
-    return await bcrypt.compare(candidatePassword, hashedPassword);
-  }
-}
+// Remove password from JSON output
+userSchema.methods.toJSON = function() {
+  const user = this.toObject();
+  delete user.password;
+  return user;
+};
 
-module.exports = User;
+module.exports = mongoose.model('User', userSchema);

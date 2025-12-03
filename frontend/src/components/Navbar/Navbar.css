@@ -22,6 +22,10 @@
 }
 
 /* Logo */
+.nav-logo {
+  cursor: pointer;
+}
+
 .nav-logo h2 {
   font-size: 1.75rem;
   font-weight: 800;
@@ -30,6 +34,75 @@
   -webkit-text-fill-color: transparent;
   background-clip: text;
   margin: 0;
+  transition: all 0.3s ease;
+}
+
+.nav-logo:hover h2 {
+  transform: scale(1.05);
+}
+
+/* Navigation Links */
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+}
+
+.nav-link {
+  background: none;
+  border: none;
+  color: #ccc;
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  padding: 0.5rem 0;
+}
+
+.nav-link:hover {
+  color: #fff;
+}
+
+.dropdown-container {
+  position: relative;
+}
+
+.dropdown-trigger {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.dropdown-menu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  background: rgba(17, 17, 17, 0.95);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 0.5rem;
+  min-width: 150px;
+  z-index: 1001;
+  margin-top: 0.5rem;
+}
+
+.dropdown-menu button {
+  width: 100%;
+  background: none;
+  border: none;
+  color: #ccc;
+  padding: 0.75rem 1rem;
+  text-align: left;
+  cursor: pointer;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  font-size: 0.9rem;
+}
+
+.dropdown-menu button:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
 }
 
 
@@ -94,8 +167,8 @@
 }
 
 .profile-avatar {
-  width: 45px;
-  height: 45px;
+  width: 35px;
+  height: 35px;
   border-radius: 50%;
   background: linear-gradient(135deg, #333, #555);
   display: flex;
@@ -106,6 +179,7 @@
   cursor: pointer;
   transition: all 0.3s ease;
   border: 2px solid #444;
+  font-size: 0.9rem;
 }
 
 .profile-avatar:hover {
@@ -113,6 +187,38 @@
   transform: scale(1.05);
   border-color: #666;
   box-shadow: 0 5px 15px rgba(255, 255, 255, 0.1);
+}
+
+.profile-dropdown {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  background: rgba(17, 17, 17, 0.95);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 0.5rem;
+  min-width: 150px;
+  z-index: 1001;
+  margin-top: 0.5rem;
+}
+
+.profile-dropdown button {
+  width: 100%;
+  background: none;
+  border: none;
+  color: #ccc;
+  padding: 0.75rem 1rem;
+  text-align: left;
+  cursor: pointer;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  font-size: 0.9rem;
+}
+
+.profile-dropdown button:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
 }
 
 /* Mobile Responsive */
@@ -126,6 +232,10 @@
   
   .nav-container {
     padding: 0 1.5rem;
+  }
+  
+  .nav-links {
+    display: none;
   }
   
   .nav-buttons {

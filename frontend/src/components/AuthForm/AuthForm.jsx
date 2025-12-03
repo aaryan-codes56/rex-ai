@@ -123,25 +123,7 @@ const AuthForm = ({ isLogin, onSubmit, onToggle, onBack, message, token }) => {
           </div>
         )}
         
-        {token && (
-          <div className="token-success">
-            <div className="token-header">
-              <h3>Authentication Successful!</h3>
-            </div>
-            <div className="token-display">
-              <code>{token.substring(0, 50)}...</code>
-              <button 
-                className="copy-token-btn"
-                onClick={() => navigator.clipboard.writeText(token)}
-              >
-                Copy
-              </button>
-            </div>
-            <a href="https://jwt.io" target="_blank" className="verify-link">
-              Verify on JWT.io
-            </a>
-          </div>
-        )}
+
       </div>
     </div>
   )
