@@ -43,6 +43,82 @@ router.get('/', async (req, res) => {
   }
 });
 
+// Get user's enrolled courses (must come before /:id route)
+router.get('/enrolled', authMiddleware, async (req, res) => {
+  try {
+    console.log('Fetching enrolled courses for user:', req.user.id);
+    
+    const courses = await Course.find({ 
+      enrolledStudents: mongoose.Types.ObjectId(req.user.id),
+      isPublished: true 
+    })
+    .populate('instructor', 'name')
+    .sort({ createdAt: -1 });
+    
+    console.log('Found enrolled courses:', courses.length);
+    
+    // Add mock progress for demo purposes
+    const coursesWithProgress = courses.map(course => ({
+      ...course.toObject(),
+      progress: Math.floor(Math.random() * 100) // Random progress for demo
+    }));
+    
+    res.json({ 
+      courses: coursesWithProgress,
+      count: coursesWithProgress.length 
+    });
+  } catch (error) {
+    console.error('Get enrolled courses error:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// Get user's courses (as instructor)
+router.get('/my/courses', authMiddleware, async (req, res) => {
+  try {
+    const courses = await Course.find({ instructor: req.user.id })
+      .sort({ createdAt: -1 });
+    
+    res.json({ courses });
+  } catch (error) {
+    console.error('Get my courses error:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// Enroll in course (must come before /:id routes)
+router.post('/:id/enroll', authMiddleware, async (req, res) => {
+  try {
+    console.log('Enrolling user:', req.user.id, 'in course:', req.params.id);
+    
+    const course = await Course.findById(req.params.id);
+    
+    if (!course) {
+      return res.status(404).json({ message: 'Course not found' });
+    }
+    
+    // Check if already enrolled using ObjectId comparison
+    const userObjectId = mongoose.Types.ObjectId(req.user.id);
+    const isAlreadyEnrolled = course.enrolledStudents.some(studentId => 
+      studentId.equals(userObjectId)
+    );
+    
+    if (isAlreadyEnrolled) {
+      return res.status(400).json({ message: 'Already enrolled' });
+    }
+    
+    course.enrolledStudents.push(userObjectId);
+    await course.save();
+    
+    console.log('Successfully enrolled. Total enrolled students:', course.enrolledStudents.length);
+    
+    res.json({ message: 'Enrolled successfully', courseId: course._id });
+  } catch (error) {
+    console.error('Enroll error:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
 // Get single course
 router.get('/:id', async (req, res) => {
   try {
@@ -84,67 +160,7 @@ router.post('/', authMiddleware, async (req, res) => {
   }
 });
 
-// Get user's courses (as instructor)
-router.get('/my/courses', authMiddleware, async (req, res) => {
-  try {
-    const courses = await Course.find({ instructor: req.user.id })
-      .sort({ createdAt: -1 });
-    
-    res.json({ courses });
-  } catch (error) {
-    console.error('Get my courses error:', error);
-    res.status(500).json({ message: 'Server error' });
-  }
-});
 
-// Get user's enrolled courses
-router.get('/enrolled', authMiddleware, async (req, res) => {
-  try {
-    const courses = await Course.find({ 
-      enrolledStudents: req.user.id,
-      isPublished: true 
-    })
-    .populate('instructor', 'name')
-    .sort({ createdAt: -1 });
-    
-    // Add mock progress for demo purposes
-    const coursesWithProgress = courses.map(course => ({
-      ...course.toObject(),
-      progress: Math.floor(Math.random() * 100) // Random progress for demo
-    }));
-    
-    res.json({ 
-      courses: coursesWithProgress,
-      count: coursesWithProgress.length 
-    });
-  } catch (error) {
-    console.error('Get enrolled courses error:', error);
-    res.status(500).json({ message: 'Server error' });
-  }
-});
-
-// Enroll in course
-router.post('/:id/enroll', authMiddleware, async (req, res) => {
-  try {
-    const course = await Course.findById(req.params.id);
-    
-    if (!course) {
-      return res.status(404).json({ message: 'Course not found' });
-    }
-    
-    if (course.enrolledStudents.includes(req.user.id)) {
-      return res.status(400).json({ message: 'Already enrolled' });
-    }
-    
-    course.enrolledStudents.push(req.user.id);
-    await course.save();
-    
-    res.json({ message: 'Enrolled successfully' });
-  } catch (error) {
-    console.error('Enroll error:', error);
-    res.status(500).json({ message: 'Server error' });
-  }
-});
 
 // Update course (authenticated)
 router.put('/:id', authMiddleware, async (req, res) => {
@@ -184,6 +200,52 @@ router.delete('/:id', authMiddleware, async (req, res) => {
   } catch (error) {
     console.error('Delete course error:', error);
     res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// Debug endpoint to check enrolled courses
+router.get('/debug/enrolled/:userId', async (req, res) => {
+  try {
+    const userId = req.params.userId;
+    const courses = await Course.find({ 
+      enrolledStudents: { $in: [userId] }
+    });
+    
+    const allCourses = await Course.find({}).select('_id title enrolledStudents');
+    
+    res.json({ 
+      userId,
+      enrolledCoursesCount: courses.length,
+      enrolledCourses: courses,
+      allCoursesWithEnrollments: allCourses
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Test enrollment endpoint
+router.post('/debug/test-enroll', async (req, res) => {
+  try {
+    const { userId, courseId } = req.body;
+    
+    const course = await Course.findById(courseId);
+    if (!course) {
+      return res.status(404).json({ message: 'Course not found' });
+    }
+    
+    if (!course.enrolledStudents.includes(userId)) {
+      course.enrolledStudents.push(userId);
+      await course.save();
+    }
+    
+    res.json({ 
+      message: 'Test enrollment successful',
+      courseTitle: course.title,
+      enrolledStudents: course.enrolledStudents
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
   }
 });
 

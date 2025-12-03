@@ -20,17 +20,25 @@ const Dashboard = ({ user, token, onLogout, onEditProfile }) => {
   const fetchEnrolledCourses = async () => {
     try {
       const token = localStorage.getItem('token');
+      console.log('Fetching enrolled courses with token:', token ? 'Present' : 'Missing');
+      
       const response = await fetch('https://rex-ai-hu5w.onrender.com/api/courses/enrolled', {
         headers: {
-          'Authorization': `Bearer ${token}`
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
         }
       });
       
+      console.log('Enrolled courses response status:', response.status);
+      
       if (response.ok) {
         const data = await response.json();
+        console.log('Enrolled courses data:', data);
         setEnrolledCourses(data.courses || []);
       } else {
-        throw new Error('Backend error');
+        const errorText = await response.text();
+        console.error('Backend error response:', errorText);
+        throw new Error(`Backend error: ${response.status}`);
       }
     } catch (error) {
       console.error('Error fetching enrolled courses:', error);

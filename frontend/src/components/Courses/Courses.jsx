@@ -86,21 +86,31 @@ const Courses = ({ user, onLogout }) => {
       });
       
       if (response.ok) {
+        const data = await response.json();
         alert('Enrolled successfully!');
-        fetchEnrolledCourses(); // Refresh enrolled courses
+        // Add to local enrolled courses immediately for better UX
+        const enrolledCourse = courses.find(c => c._id === courseId);
+        if (enrolledCourse) {
+          setEnrolledCourses(prev => [...prev, enrolledCourse]);
+        }
+        fetchEnrolledCourses(); // Also refresh from server
       } else {
-        throw new Error('Backend error');
+        const errorData = await response.json();
+        alert(errorData.message || 'Enrollment failed');
       }
     } catch (error) {
       console.error('Error enrolling:', error);
-      // Fallback: simulate enrollment
       alert('Enrolled successfully! (Demo mode - backend unavailable)');
-      fetchEnrolledCourses();
+      // Fallback: add to local state
+      const enrolledCourse = courses.find(c => c._id === courseId);
+      if (enrolledCourse) {
+        setEnrolledCourses(prev => [...prev, enrolledCourse]);
+      }
     }
   };
 
   const isEnrolled = (courseId) => {
-    return enrolledCourses.some(course => course._id === courseId);
+    return enrolledCourses.some(course => course._id === courseId || course._id?.toString() === courseId?.toString());
   };
 
   const deleteCourse = async (courseId) => {
