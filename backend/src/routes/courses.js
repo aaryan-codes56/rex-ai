@@ -4,10 +4,10 @@ const authMiddleware = require('../middleware/authMiddleware');
 
 const router = express.Router();
 
-// Get all published courses
+// Get all published courses with pagination, search, sort, filter
 router.get('/', async (req, res) => {
   try {
-    const { category, level, search } = req.query;
+    const { category, level, search, page = 1, limit = 10, sort = 'createdAt' } = req.query;
     let filter = { isPublished: true };
     
     if (category) filter.category = category;
@@ -19,11 +19,23 @@ router.get('/', async (req, res) => {
       ];
     }
     
+    const sortOptions = {};
+    sortOptions[sort] = -1;
+    
     const courses = await Course.find(filter)
       .populate('instructor', 'name')
-      .sort({ createdAt: -1 });
+      .sort(sortOptions)
+      .limit(limit * 1)
+      .skip((page - 1) * limit);
     
-    res.json({ courses });
+    const total = await Course.countDocuments(filter);
+    
+    res.json({ 
+      courses,
+      totalPages: Math.ceil(total / limit),
+      currentPage: page,
+      total
+    });
   } catch (error) {
     console.error('Get courses error:', error);
     res.status(500).json({ message: 'Server error' });
@@ -122,6 +134,47 @@ router.post('/:id/enroll', authMiddleware, async (req, res) => {
     res.json({ message: 'Enrolled successfully' });
   } catch (error) {
     console.error('Enroll error:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// Update course (authenticated)
+router.put('/:id', authMiddleware, async (req, res) => {
+  try {
+    const { title, description, category, level, price } = req.body;
+    
+    const course = await Course.findOneAndUpdate(
+      { _id: req.params.id, instructor: req.user.id },
+      { title, description, category, level, price },
+      { new: true }
+    );
+    
+    if (!course) {
+      return res.status(404).json({ message: 'Course not found or unauthorized' });
+    }
+    
+    res.json({ course });
+  } catch (error) {
+    console.error('Update course error:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// Delete course (authenticated)
+router.delete('/:id', authMiddleware, async (req, res) => {
+  try {
+    const course = await Course.findOneAndDelete({
+      _id: req.params.id,
+      instructor: req.user.id
+    });
+    
+    if (!course) {
+      return res.status(404).json({ message: 'Course not found or unauthorized' });
+    }
+    
+    res.json({ message: 'Course deleted successfully' });
+  } catch (error) {
+    console.error('Delete course error:', error);
     res.status(500).json({ message: 'Server error' });
   }
 });

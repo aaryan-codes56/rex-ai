@@ -21,88 +21,60 @@ const IndustryInsights = ({ user, onLogout }) => {
   }, []);
 
   useEffect(() => {
-    const getIndustryData = (industry) => {
-      const industryData = {
-        Technology: {
+    const fetchIndustryInsights = async () => {
+      try {
+        const industry = user?.industry || 'Technology';
+        const token = localStorage.getItem('token');
+        
+        const response = await fetch(`https://rex-ai-hu5w.onrender.com/api/insights/${industry}`, {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+        
+        if (response.ok) {
+          const data = await response.json();
+          // Transform API data to match UI expectations
+          const transformedData = {
+            marketOutlook: data.marketOutlook,
+            industryGrowth: data.growthRate,
+            demandLevel: data.demandLevel,
+            topSkills: data.topSkills,
+            salaryRanges: data.salaryRanges.map(range => ({
+              role: range.role,
+              min: range.min,
+              median: range.median,
+              max: range.max
+            })),
+            trends: data.keyTrends,
+            recommendedSkills: data.recommendedSkills
+          };
+          setInsights(transformedData);
+        } else {
+          throw new Error('API failed');
+        }
+      } catch (error) {
+        console.error('Error fetching insights:', error);
+        // Fallback to mock data
+        const fallbackData = {
           marketOutlook: 'Positive',
           industryGrowth: 85,
           demandLevel: 'High',
           topSkills: ['JavaScript', 'React', 'Python', 'AWS', 'Docker'],
           salaryRanges: [
             { role: 'Junior Developer', min: 60000, median: 75000, max: 90000 },
-            { role: 'Senior Developer', min: 90000, median: 120000, max: 150000 },
-            { role: 'Tech Lead', min: 120000, median: 150000, max: 180000 },
-            { role: 'Engineering Manager', min: 140000, median: 170000, max: 200000 }
+            { role: 'Senior Developer', min: 90000, median: 120000, max: 150000 }
           ],
-          trends: ['AI/ML Integration', 'Cloud Computing', 'DevOps Automation', 'Cybersecurity', 'Remote Development'],
-          recommendedSkills: ['TypeScript', 'Kubernetes', 'GraphQL', 'Microservices', 'Machine Learning']
-        },
-        Finance: {
-          marketOutlook: 'Stable',
-          industryGrowth: 65,
-          demandLevel: 'Medium',
-          topSkills: ['Financial Analysis', 'Risk Management', 'Excel', 'SQL', 'Python'],
-          salaryRanges: [
-            { role: 'Financial Analyst', min: 55000, median: 70000, max: 85000 },
-            { role: 'Senior Analyst', min: 75000, median: 95000, max: 115000 },
-            { role: 'Finance Manager', min: 95000, median: 125000, max: 155000 },
-            { role: 'Finance Director', min: 130000, median: 165000, max: 200000 }
-          ],
-          trends: ['Digital Banking', 'Cryptocurrency', 'RegTech', 'ESG Investing', 'Robo-Advisors'],
-          recommendedSkills: ['Data Analytics', 'Blockchain', 'Compliance', 'Financial Modeling', 'Power BI']
-        },
-        Healthcare: {
-          marketOutlook: 'Very Positive',
-          industryGrowth: 92,
-          demandLevel: 'Very High',
-          topSkills: ['Patient Care', 'Medical Knowledge', 'EMR Systems', 'Telemedicine', 'Healthcare Analytics'],
-          salaryRanges: [
-            { role: 'Healthcare Assistant', min: 35000, median: 45000, max: 55000 },
-            { role: 'Registered Nurse', min: 60000, median: 75000, max: 90000 },
-            { role: 'Healthcare Manager', min: 80000, median: 105000, max: 130000 },
-            { role: 'Healthcare Director', min: 120000, median: 150000, max: 180000 }
-          ],
-          trends: ['Telehealth Expansion', 'AI Diagnostics', 'Personalized Medicine', 'Digital Health Records', 'Preventive Care'],
-          recommendedSkills: ['Digital Health', 'Data Analysis', 'Quality Improvement', 'Healthcare IT', 'Patient Experience']
-        },
-        Marketing: {
-          marketOutlook: 'Positive',
-          industryGrowth: 78,
-          demandLevel: 'High',
-          topSkills: ['Digital Marketing', 'SEO/SEM', 'Social Media', 'Analytics', 'Content Creation'],
-          salaryRanges: [
-            { role: 'Marketing Coordinator', min: 40000, median: 50000, max: 60000 },
-            { role: 'Marketing Specialist', min: 55000, median: 70000, max: 85000 },
-            { role: 'Marketing Manager', min: 75000, median: 95000, max: 115000 },
-            { role: 'Marketing Director', min: 110000, median: 140000, max: 170000 }
-          ],
-          trends: ['Influencer Marketing', 'AI-Powered Personalization', 'Video Content', 'Voice Search Optimization', 'Privacy-First Marketing'],
-          recommendedSkills: ['Marketing Automation', 'Data Analytics', 'CRM Systems', 'A/B Testing', 'Customer Journey Mapping']
-        },
-        Education: {
-          marketOutlook: 'Stable',
-          industryGrowth: 55,
-          demandLevel: 'Medium',
-          topSkills: ['Curriculum Development', 'Classroom Management', 'Educational Technology', 'Assessment', 'Student Engagement'],
-          salaryRanges: [
-            { role: 'Teaching Assistant', min: 25000, median: 35000, max: 45000 },
-            { role: 'Teacher', min: 40000, median: 55000, max: 70000 },
-            { role: 'Department Head', min: 60000, median: 75000, max: 90000 },
-            { role: 'Principal', min: 80000, median: 100000, max: 120000 }
-          ],
-          trends: ['Online Learning', 'EdTech Integration', 'Personalized Learning', 'STEM Focus', 'Social-Emotional Learning'],
-          recommendedSkills: ['Learning Management Systems', 'Digital Literacy', 'Data-Driven Instruction', 'Inclusive Education', 'Educational Assessment']
-        }
-      };
-
-      return industryData[industry] || industryData.Technology;
+          trends: ['AI Integration', 'Cloud Computing', 'Remote Work'],
+          recommendedSkills: ['TypeScript', 'Kubernetes', 'GraphQL']
+        };
+        setInsights(fallbackData);
+      } finally {
+        setLoading(false);
+      }
     };
 
-    setTimeout(() => {
-      const industryInsights = getIndustryData(user?.industry);
-      setInsights(industryInsights);
-      setLoading(false);
-    }, 1000);
+    fetchIndustryInsights();
   }, [user?.industry]);
 
   if (loading) {

@@ -9,6 +9,7 @@ const debugRoutes = require('./routes/debug');
 const courseRoutes = require('./routes/courses');
 const careerRoutes = require('./routes/careers');
 const resumeRoutes = require('./routes/resume');
+const insightsRoutes = require('./routes/insights');
 
 const app = express();
 
@@ -46,6 +47,7 @@ app.use('/api/debug', debugRoutes);
 app.use('/api/courses', courseRoutes);
 app.use('/api/careers', careerRoutes);
 app.use('/api/resume', resumeRoutes);
+app.use('/api/insights', insightsRoutes);
 
 const PORT = process.env.PORT || 3001;
 

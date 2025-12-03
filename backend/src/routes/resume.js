@@ -6,6 +6,16 @@ const router = express.Router();
 // Mock resume storage (in production, use MongoDB)
 let resumes = [];
 
+// Get user's resumes
+router.get('/', authMiddleware, async (req, res) => {
+  try {
+    const userResumes = resumes.filter(r => r.userId === req.user.id);
+    res.json({ resumes: userResumes });
+  } catch (error) {
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
 // Create or update resume
 router.post('/', authMiddleware, async (req, res) => {
   try {
@@ -23,6 +33,31 @@ router.post('/', authMiddleware, async (req, res) => {
     
     resumes.push(resume);
     res.status(201).json({ resume });
+  } catch (error) {
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// Update resume
+router.put('/:id', authMiddleware, async (req, res) => {
+  try {
+    const { personalInfo, experience, education, skills } = req.body;
+    const resumeIndex = resumes.findIndex(r => r.id === req.params.id && r.userId === req.user.id);
+    
+    if (resumeIndex === -1) {
+      return res.status(404).json({ message: 'Resume not found' });
+    }
+    
+    resumes[resumeIndex] = {
+      ...resumes[resumeIndex],
+      personalInfo,
+      experience,
+      education,
+      skills,
+      updatedAt: new Date()
+    };
+    
+    res.json({ resume: resumes[resumeIndex] });
   } catch (error) {
     res.status(500).json({ message: 'Server error' });
   }
