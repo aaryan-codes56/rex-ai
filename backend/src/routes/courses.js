@@ -10,7 +10,8 @@ router.get('/', async (req, res) => {
   try {
     const { category, level, search, page = 1, limit = 10, sort = 'createdAt' } = req.query;
     let filter = { isPublished: true };
-    
+
+    // Strict category filtering
     if (category) filter.category = category;
     if (level) filter.level = level;
     if (search) {
@@ -19,19 +20,79 @@ router.get('/', async (req, res) => {
         { description: { $regex: search, $options: 'i' } }
       ];
     }
-    
+
     const sortOptions = {};
     sortOptions[sort] = -1;
-    
-    const courses = await Course.find(filter)
+
+    let courses = await Course.find(filter)
       .populate('instructor', 'name')
       .sort(sortOptions)
       .limit(limit * 1)
       .skip((page - 1) * limit);
-    
-    const total = await Course.countDocuments(filter);
-    
-    res.json({ 
+
+    let total = await Course.countDocuments(filter);
+
+    // AI AUTO-GENERATION: If strictly filtering by category and no courses found
+    if (total === 0 && category && !search && !level) {
+      console.log(`No courses found for ${category}. Generating AI courses...`);
+      try {
+        const { GoogleGenerativeAI } = require('@google/generative-ai');
+        const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+        const model = genAI.getGenerativeModel({ model: 'gemini-pro' });
+
+        const prompt = `
+          Generate 5-6 realistic, high-quality, professional online courses SPECIFICALLY for the "${category}" industry for a learning platform.
+          Context: Indian Market. Prices in INR (0 for free, or 499-4999).
+          
+          Return ONLY a valid JSON array of objects with this structure:
+          [
+            {
+              "title": "Course Title",
+              "description": "Detailed description (2-3 sentences)",
+              "category": "${category}",
+              "level": "Beginner" | "Intermediate" | "Advanced",
+              "price": number,
+              "instructorName": "Professional Name",
+              "rating": 4.5,
+              "totalRatings": 120
+            }
+          ]
+        `;
+
+        const result = await model.generateContent(prompt);
+        let text = result.response.text();
+        text = text.replace(/```json/g, '').replace(/```/g, '').trim();
+        const generatedCourses = JSON.parse(text);
+
+        // Sanitize and save
+        const newCourses = generatedCourses.map(c => ({
+          ...c,
+          category: category, // Enforce category
+          instructor: new mongoose.Types.ObjectId(), // Random ID for system generated
+          isPublished: true,
+          lectures: [], // Empty lectures for now
+          createdAt: new Date()
+        }));
+
+        if (newCourses.length > 0) {
+          await Course.insertMany(newCourses);
+          console.log(`Successfully generated ${newCourses.length} courses for ${category}`);
+
+          // Refetch to get the newly created courses
+          courses = await Course.find(filter)
+            .populate('instructor', 'name')
+            .sort(sortOptions)
+            .limit(limit * 1);
+
+          total = await Course.countDocuments(filter);
+        }
+      } catch (aiError) {
+        console.error('AI Course Generation Failed:', aiError);
+        // Continue to return empty list gracefully
+      }
+    }
+
+    res.json({
       courses,
       totalPages: Math.ceil(total / limit),
       currentPage: page,
@@ -47,25 +108,25 @@ router.get('/', async (req, res) => {
 router.get('/enrolled', authMiddleware, async (req, res) => {
   try {
     console.log('Fetching enrolled courses for user:', req.user.id);
-    
-    const courses = await Course.find({ 
+
+    const courses = await Course.find({
       enrolledStudents: mongoose.Types.ObjectId(req.user.id),
-      isPublished: true 
+      isPublished: true
     })
-    .populate('instructor', 'name')
-    .sort({ createdAt: -1 });
-    
+      .populate('instructor', 'name')
+      .sort({ createdAt: -1 });
+
     console.log('Found enrolled courses:', courses.length);
-    
+
     // Add mock progress for demo purposes
     const coursesWithProgress = courses.map(course => ({
       ...course.toObject(),
       progress: Math.floor(Math.random() * 100) // Random progress for demo
     }));
-    
-    res.json({ 
+
+    res.json({
       courses: coursesWithProgress,
-      count: coursesWithProgress.length 
+      count: coursesWithProgress.length
     });
   } catch (error) {
     console.error('Get enrolled courses error:', error);
@@ -78,7 +139,7 @@ router.get('/my/courses', authMiddleware, async (req, res) => {
   try {
     const courses = await Course.find({ instructor: req.user.id })
       .sort({ createdAt: -1 });
-    
+
     res.json({ courses });
   } catch (error) {
     console.error('Get my courses error:', error);
@@ -90,28 +151,28 @@ router.get('/my/courses', authMiddleware, async (req, res) => {
 router.post('/:id/enroll', authMiddleware, async (req, res) => {
   try {
     console.log('Enrolling user:', req.user.id, 'in course:', req.params.id);
-    
+
     const course = await Course.findById(req.params.id);
-    
+
     if (!course) {
       return res.status(404).json({ message: 'Course not found' });
     }
-    
+
     // Check if already enrolled using ObjectId comparison
     const userObjectId = mongoose.Types.ObjectId(req.user.id);
-    const isAlreadyEnrolled = course.enrolledStudents.some(studentId => 
+    const isAlreadyEnrolled = course.enrolledStudents.some(studentId =>
       studentId.equals(userObjectId)
     );
-    
+
     if (isAlreadyEnrolled) {
       return res.status(400).json({ message: 'Already enrolled' });
     }
-    
+
     course.enrolledStudents.push(userObjectId);
     await course.save();
-    
+
     console.log('Successfully enrolled. Total enrolled students:', course.enrolledStudents.length);
-    
+
     res.json({ message: 'Enrolled successfully', courseId: course._id });
   } catch (error) {
     console.error('Enroll error:', error);
@@ -124,11 +185,11 @@ router.get('/:id', async (req, res) => {
   try {
     const course = await Course.findById(req.params.id)
       .populate('instructor', 'name email');
-    
+
     if (!course) {
       return res.status(404).json({ message: 'Course not found' });
     }
-    
+
     res.json({ course });
   } catch (error) {
     console.error('Get course error:', error);
@@ -140,7 +201,7 @@ router.get('/:id', async (req, res) => {
 router.post('/', authMiddleware, async (req, res) => {
   try {
     const { title, description, category, level, price } = req.body;
-    
+
     const course = new Course({
       title,
       description,
@@ -151,7 +212,7 @@ router.post('/', authMiddleware, async (req, res) => {
       instructorName: req.user.name,
       isPublished: true
     });
-    
+
     await course.save();
     res.status(201).json({ course });
   } catch (error) {
@@ -166,17 +227,17 @@ router.post('/', authMiddleware, async (req, res) => {
 router.put('/:id', authMiddleware, async (req, res) => {
   try {
     const { title, description, category, level, price } = req.body;
-    
+
     const course = await Course.findOneAndUpdate(
       { _id: req.params.id, instructor: req.user.id },
       { title, description, category, level, price },
       { new: true }
     );
-    
+
     if (!course) {
       return res.status(404).json({ message: 'Course not found or unauthorized' });
     }
-    
+
     res.json({ course });
   } catch (error) {
     console.error('Update course error:', error);
@@ -191,11 +252,11 @@ router.delete('/:id', authMiddleware, async (req, res) => {
       _id: req.params.id,
       instructor: req.user.id
     });
-    
+
     if (!course) {
       return res.status(404).json({ message: 'Course not found or unauthorized' });
     }
-    
+
     res.json({ message: 'Course deleted successfully' });
   } catch (error) {
     console.error('Delete course error:', error);
@@ -207,13 +268,13 @@ router.delete('/:id', authMiddleware, async (req, res) => {
 router.get('/debug/enrolled/:userId', async (req, res) => {
   try {
     const userId = req.params.userId;
-    const courses = await Course.find({ 
+    const courses = await Course.find({
       enrolledStudents: { $in: [userId] }
     });
-    
+
     const allCourses = await Course.find({}).select('_id title enrolledStudents');
-    
-    res.json({ 
+
+    res.json({
       userId,
       enrolledCoursesCount: courses.length,
       enrolledCourses: courses,
@@ -228,18 +289,18 @@ router.get('/debug/enrolled/:userId', async (req, res) => {
 router.post('/debug/test-enroll', async (req, res) => {
   try {
     const { userId, courseId } = req.body;
-    
+
     const course = await Course.findById(courseId);
     if (!course) {
       return res.status(404).json({ message: 'Course not found' });
     }
-    
+
     if (!course.enrolledStudents.includes(userId)) {
       course.enrolledStudents.push(userId);
       await course.save();
     }
-    
-    res.json({ 
+
+    res.json({
       message: 'Test enrollment successful',
       courseTitle: course.title,
       enrolledStudents: course.enrolledStudents
@@ -254,7 +315,7 @@ router.post('/seed/sample', async (req, res) => {
   try {
     // Clear existing sample courses first
     await Course.deleteMany({ instructorName: { $in: ['John Doe', 'Jane Smith', 'Mike Johnson', 'Sarah Wilson', 'David Chen', 'Alex Kumar', 'Lisa Wang', 'Robert Brown', 'Emma Davis', 'Carlos Rodriguez'] } });
-    
+
     const sampleCourses = [
       // Technology Courses
       {
@@ -479,9 +540,9 @@ router.post('/seed/sample', async (req, res) => {
         totalRatings: 156
       }
     ];
-    
+
     const createdCourses = await Course.insertMany(sampleCourses);
-    res.json({ 
+    res.json({
       message: 'Sample courses created successfully',
       count: createdCourses.length,
       courses: createdCourses

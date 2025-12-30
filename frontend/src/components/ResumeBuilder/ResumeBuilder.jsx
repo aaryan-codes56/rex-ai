@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import './ResumeBuilder.css';
 import Navbar from '../Navbar';
+import API_BASE_URL from '../../config';
 
 const ResumeBuilder = ({ user, onLogout }) => {
   const [activeTab, setActiveTab] = useState('form');
@@ -35,7 +36,7 @@ const ResumeBuilder = ({ user, onLogout }) => {
         setShowDashboard(false);
       }
     };
-    
+
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
@@ -90,7 +91,7 @@ const ResumeBuilder = ({ user, onLogout }) => {
   const saveResume = async () => {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch('https://rex-ai-hu5w.onrender.com/api/resume', {
+      const response = await fetch(`${API_BASE_URL}/api/resume`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -103,7 +104,7 @@ const ResumeBuilder = ({ user, onLogout }) => {
           summary: resumeData.summary
         })
       });
-      
+
       if (response.ok) {
         const data = await response.json();
         setCurrentResumeId(data.resume.id);
@@ -134,13 +135,13 @@ const ResumeBuilder = ({ user, onLogout }) => {
 
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`https://rex-ai-hu5w.onrender.com/api/resume/${resumeId}`, {
+      const response = await fetch(`${API_BASE_URL}/api/resume/${resumeId}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`
         }
       });
-      
+
       if (response.ok) {
         alert('Resume deleted successfully!');
       } else {
@@ -150,7 +151,7 @@ const ResumeBuilder = ({ user, onLogout }) => {
       console.error('Error deleting resume:', error);
       alert('Resume deleted! (Demo mode)');
     }
-    
+
     setSavedResumes(savedResumes.filter(r => r.id !== resumeId));
     if (currentResumeId === resumeId) {
       setCurrentResumeId(null);
@@ -160,12 +161,12 @@ const ResumeBuilder = ({ user, onLogout }) => {
   const fetchResumes = async () => {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch('https://rex-ai-hu5w.onrender.com/api/resume', {
+      const response = await fetch(`${API_BASE_URL}/api/resume`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
       });
-      
+
       if (response.ok) {
         const data = await response.json();
         setSavedResumes(data.resumes || []);
@@ -177,7 +178,7 @@ const ResumeBuilder = ({ user, onLogout }) => {
 
   const generateMarkdown = () => {
     const skillsArray = resumeData.skills.split(',').map(s => s.trim()).filter(s => s);
-    
+
     return `# ${user.name}
 
 ## Contact Information
@@ -220,7 +221,7 @@ ${exp.description}
       </body>
       </html>
     `;
-    
+
     const blob = new Blob([htmlContent], { type: 'text/html' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
@@ -244,33 +245,33 @@ ${exp.description}
 
   return (
     <div className="resume-builder">
-      <Navbar 
-        user={user} 
-        isLoggedIn={true} 
+      <Navbar
+        user={user}
+        isLoggedIn={true}
         onLogout={onLogout}
         showDashboard={showDashboard}
         setShowDashboard={setShowDashboard}
         dropdownRef={dropdownRef}
       />
-      
+
       <div className="resume-container">
         <div className="resume-header">
           <h1>Resume Builder</h1>
           <div className="header-actions">
             <div className="tab-buttons">
-              <button 
+              <button
                 className={`tab-btn ${activeTab === 'form' ? 'active' : ''}`}
                 onClick={() => setActiveTab('form')}
               >
                 Form Mode
               </button>
-              <button 
+              <button
                 className={`tab-btn ${activeTab === 'preview' ? 'active' : ''}`}
                 onClick={() => setActiveTab('preview')}
               >
                 Preview
               </button>
-              <button 
+              <button
                 className={`tab-btn ${activeTab === 'saved' ? 'active' : ''}`}
                 onClick={() => setActiveTab('saved')}
               >
@@ -315,7 +316,7 @@ ${exp.description}
                       <p><strong>Experience:</strong> {resume.experience?.length || 0} entries</p>
                     </div>
                     <div className="resume-actions">
-                      <button 
+                      <button
                         className="edit-btn"
                         onClick={() => {
                           setResumeData({
@@ -330,7 +331,7 @@ ${exp.description}
                       >
                         Edit
                       </button>
-                      <button 
+                      <button
                         className="delete-btn"
                         onClick={() => deleteResume(resume.id)}
                       >
@@ -347,7 +348,7 @@ ${exp.description}
         {activeTab === 'preview' && (
           <div className="preview-section">
             <div className="resume-preview-content">
-              <div dangerouslySetInnerHTML={{ 
+              <div dangerouslySetInnerHTML={{
                 __html: generateMarkdown()
                   .replace(/\n/g, '<br>')
                   .replace(/# /g, '<h1>')
@@ -357,7 +358,7 @@ ${exp.description}
                   .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
                   .replace(/- /g, '<li>')
                   .replace(/<li>/g, '<ul><li>')
-                  .replace(/<\/li><br>/g, '</li></ul><br>') 
+                  .replace(/<\/li><br>/g, '</li></ul><br>')
               }} />
             </div>
           </div>
@@ -375,7 +376,7 @@ ${exp.description}
                   placeholder="your.email@example.com"
                 />
               </div>
-              
+
               <div className="form-group">
                 <label>Mobile</label>
                 <input
@@ -385,7 +386,7 @@ ${exp.description}
                   placeholder="+1 (555) 123-4567"
                 />
               </div>
-              
+
               <div className="form-group">
                 <label>LinkedIn</label>
                 <input
@@ -395,27 +396,27 @@ ${exp.description}
                   placeholder="https://linkedin.com/in/yourprofile"
                 />
               </div>
-              
+
               <div className="form-group">
                 <label>Professional Summary</label>
                 <textarea
                   value={resumeData.summary}
-                  onChange={(e) => setResumeData({...resumeData, summary: e.target.value})}
+                  onChange={(e) => setResumeData({ ...resumeData, summary: e.target.value })}
                   placeholder="Brief summary of your professional background..."
                   rows="4"
                 />
               </div>
-              
+
               <div className="form-group">
                 <label>Skills (comma-separated)</label>
                 <input
                   type="text"
                   value={resumeData.skills}
-                  onChange={(e) => setResumeData({...resumeData, skills: e.target.value})}
+                  onChange={(e) => setResumeData({ ...resumeData, skills: e.target.value })}
                   placeholder="JavaScript, React, Node.js, Python"
                 />
               </div>
-              
+
               <div className="experience-section">
                 <h3>Work Experience</h3>
                 {resumeData.experience.map((exp, index) => (
@@ -440,7 +441,7 @@ ${exp.description}
                         />
                       </div>
                     </div>
-                    
+
                     <div className="form-row">
                       <div className="form-group">
                         <label>Start Date</label>
@@ -459,18 +460,21 @@ ${exp.description}
                           disabled={exp.isCurrent}
                         />
                       </div>
-                      <div className="form-group checkbox-group">
-                        <label>
-                          <input
-                            type="checkbox"
-                            checked={exp.isCurrent}
-                            onChange={(e) => handleExperienceChange(index, 'isCurrent', e.target.checked)}
-                          />
-                          Current Position
-                        </label>
+                      <div className="form-group checkbox-wrapper">
+                        <label>&nbsp;</label>
+                        <div className="checkbox-group">
+                          <label>
+                            <input
+                              type="checkbox"
+                              checked={exp.isCurrent}
+                              onChange={(e) => handleExperienceChange(index, 'isCurrent', e.target.checked)}
+                            />
+                            I currently work here
+                          </label>
+                        </div>
                       </div>
                     </div>
-                    
+
                     <div className="form-group">
                       <label>Description</label>
                       <textarea
@@ -480,10 +484,10 @@ ${exp.description}
                         rows="3"
                       />
                     </div>
-                    
+
                     {resumeData.experience.length > 1 && (
-                      <button 
-                        type="button" 
+                      <button
+                        type="button"
                         className="remove-btn"
                         onClick={() => removeExperience(index)}
                       >
@@ -492,13 +496,13 @@ ${exp.description}
                     )}
                   </div>
                 ))}
-                
-                <button 
-                  type="button" 
+
+                <button
+                  type="button"
                   className="add-btn"
                   onClick={addExperience}
                 >
-                  Add Experience
+                  <span style={{ fontSize: '1.2rem', fontWeight: 'bold' }}>+</span> Add Experience
                 </button>
               </div>
             </div>

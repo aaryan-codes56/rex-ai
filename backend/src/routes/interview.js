@@ -17,7 +17,8 @@ router.post('/generate', authMiddleware, async (req, res) => {
     const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
 
     const skillsText = user.skills ? ` with expertise in ${user.skills}` : '';
-    const industry = user.industry || 'Technology';
+    // Allow overriding industry from request body, otherwise use user profile industry, fallback to Technology
+    const industry = req.body.industry || user.industry || 'Technology';
     const prompt = `
       You are generating interview questions for the ${industry} industry specifically. Do NOT include questions from other industries.
       
@@ -51,30 +52,30 @@ router.post('/generate', authMiddleware, async (req, res) => {
         console.error('GEMINI_API_KEY not found in environment variables');
         throw new Error('GEMINI_API_KEY not configured');
       }
-      
+
       console.log('=== GEMINI API CALL START ===');
       console.log('API Key available:', !!process.env.GEMINI_API_KEY);
       console.log('API Key length:', process.env.GEMINI_API_KEY?.length);
       console.log('Generating questions for industry:', industry);
       console.log('User skills:', user.skills);
       console.log('Full prompt:', prompt.substring(0, 300) + '...');
-      
+
       console.log('Calling Gemini API...');
       const result = await model.generateContent(prompt);
       console.log('Gemini API call completed');
       const response = result.response;
       let text = response.text();
       console.log('=== GEMINI API CALL END ===');
-      
+
       console.log('Raw AI Response length:', text.length);
       console.log('Raw AI Response preview:', text.substring(0, 200));
-      
+
       // Clean the response more thoroughly
       text = text.replace(/```json/g, '').replace(/```/g, '').trim();
       text = text.replace(/^[^{]*{/, '{').replace(/}[^}]*$/, '}');
-      
+
       console.log('Cleaned AI Response preview:', text.substring(0, 200));
-      
+
       let quiz;
       try {
         quiz = JSON.parse(text);
@@ -112,7 +113,7 @@ router.post('/results', authMiddleware, async (req, res) => {
   try {
     const { questions, answers, score } = req.body;
     const user = await User.findById(req.user.id);
-    
+
     const questionResults = questions.map((q, index) => ({
       question: q.question,
       answer: q.correctAnswer,
@@ -144,7 +145,7 @@ router.post('/results', authMiddleware, async (req, res) => {
         const { GoogleGenerativeAI } = require('@google/generative-ai');
         const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
         const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
-        
+
         const tipResult = await model.generateContent(improvementPrompt);
         improvementTip = tipResult.response.text().trim();
       } catch (error) {
@@ -547,7 +548,7 @@ function getFallbackQuestions(industry) {
 
   const questions = questionSets[industry] || questionSets.Technology;
   console.log('Using fallback questions for industry:', industry, 'Available industries:', Object.keys(questionSets));
-  
+
   const result = [];
   for (let i = 0; i < 10; i++) {
     const baseQuestion = questions[i % questions.length];
@@ -556,7 +557,7 @@ function getFallbackQuestions(industry) {
       question: i >= questions.length ? `${baseQuestion.question} (Advanced)` : baseQuestion.question
     });
   }
-  
+
   return result;
 }
 

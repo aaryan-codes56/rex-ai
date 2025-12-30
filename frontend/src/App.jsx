@@ -9,8 +9,9 @@ import IndustryInsights from './components/IndustryInsights'
 import ResumeBuilder from './components/ResumeBuilder'
 import InterviewPrep from './components/InterviewPrep'
 import Courses from './components/Courses/Courses'
+import API_BASE_URL from './config'
 
-const API_URL = 'http://localhost:3001'
+const API_URL = API_BASE_URL;
 
 // Test function to check backend connectivity
 const testBackend = async () => {

@@ -9,13 +9,13 @@ const model = genAI.getGenerativeModel({ model: 'gemini-pro' });
 
 const generateAIInsights = async (industry) => {
   const prompt = `
-    You are analyzing the ${industry} industry specifically. Provide insights ONLY for ${industry} industry roles and skills. Do NOT include roles from other industries like Technology or Software Development unless the user's industry is specifically Technology.
+    You are analyzing the ${industry} industry specifically for the INDIAN market. Provide insights ONLY for ${industry} industry roles and skills.
     
-    Analyze the current state of the ${industry} industry in 2024 and provide comprehensive insights in ONLY the following JSON format without any additional notes, text, or markdown:
+    Analyze the current state of the ${industry} industry in India in 2024 and provide comprehensive insights in ONLY the following JSON format without any additional notes, text, or markdown:
 
     {
       "salaryRanges": [
-        { "role": "string", "min": number, "max": number, "median": number, "location": "US" }
+        { "role": "string", "min": number, "max": number, "median": number, "location": "India" }
       ],
       "growthRate": number,
       "demandLevel": "High" | "Medium" | "Low",
@@ -26,26 +26,25 @@ const generateAIInsights = async (industry) => {
     }
 
     CRITICAL Requirements:
+    - Context: INDIA Market Only
+    - Currency: Indian Rupees (INR) per annum
     - Include exactly 5 job roles that are SPECIFICALLY from the ${industry} industry ONLY
     - If industry is Sales: include roles like Sales Representative, Account Manager, Sales Manager, Business Development Representative, Sales Director
     - If industry is Marketing: include roles like Marketing Specialist, Digital Marketing Manager, Content Marketing Manager, SEO Specialist, Social Media Manager
     - If industry is Finance: include roles like Financial Analyst, Investment Banker, Portfolio Manager, Risk Manager, Quantitative Analyst
-    - DO NOT mix industries - stick strictly to the ${industry} industry
     - Growth rate should be annual percentage (number only, no % symbol)
-    - topSkills should be the most in-demand skills for ${industry} professionals specifically
-    - keyTrends should be current ${industry} industry developments and future directions
-    - recommendedSkills should be emerging skills ${industry} professionals should learn
-    - All data should be current and realistic for the ${industry} industry ONLY
+    - All data should be current and realistic for the ${industry} industry in INDIA
+    - Salaries should be realistic annual packages in INR (e.g. 500000 for 5 LPA)
     - Return ONLY valid JSON with no additional text, explanations, or formatting
   `;
 
   const result = await model.generateContent(prompt);
   let text = result.response.text().trim();
-  
+
   // Clean the response more thoroughly
   text = text.replace(/```json/g, '').replace(/```/g, '').trim();
   text = text.replace(/^[^{]*{/, '{').replace(/}[^}]*$/, '}');
-  
+
   return JSON.parse(text);
 };
 
@@ -53,21 +52,21 @@ const generateAIInsights = async (industry) => {
 router.get('/:industry', authMiddleware, async (req, res) => {
   try {
     let { industry } = req.params;
-    
+
     // Normalize industry name
     industry = industry.charAt(0).toUpperCase() + industry.slice(1).toLowerCase();
     console.log('Generating insights for industry:', industry);
-    
+
     // Try to generate AI insights first
     try {
       if (!process.env.GEMINI_API_KEY) {
         throw new Error('GEMINI_API_KEY not configured');
       }
-      
+
       console.log('Using Gemini AI to generate insights for:', industry);
       const aiInsights = await generateAIInsights(industry);
       console.log('AI insights generated successfully');
-      
+
       // Validate the response structure
       if (aiInsights.salaryRanges && aiInsights.topSkills && aiInsights.keyTrends) {
         res.json(aiInsights);
@@ -80,18 +79,18 @@ router.get('/:industry', authMiddleware, async (req, res) => {
       console.log('Falling back to static data for:', industry);
       // Fall back to static data
     }
-    
+
     // Fallback static data
     const fallbackData = {
       Technology: {
         salaryRanges: [
-          { role: "Software Engineer", min: 70000, max: 150000, median: 95000, location: "US" },
-          { role: "Data Scientist", min: 80000, max: 160000, median: 110000, location: "US" },
-          { role: "Product Manager", min: 90000, max: 180000, median: 125000, location: "US" },
-          { role: "DevOps Engineer", min: 75000, max: 155000, median: 105000, location: "US" },
-          { role: "Frontend Developer", min: 65000, max: 140000, median: 90000, location: "US" }
+          { role: "Software Engineer", min: 500000, max: 1500000, median: 800000, location: "India" },
+          { role: "Data Scientist", min: 800000, max: 2000000, median: 1200000, location: "India" },
+          { role: "Product Manager", min: 1200000, max: 3000000, median: 1800000, location: "India" },
+          { role: "DevOps Engineer", min: 600000, max: 1800000, median: 1000000, location: "India" },
+          { role: "Frontend Developer", min: 400000, max: 1200000, median: 700000, location: "India" }
         ],
-        growthRate: 22,
+        growthRate: 15,
         demandLevel: "High",
         topSkills: ["JavaScript", "Python", "React", "AWS", "Docker"],
         marketOutlook: "Positive",
@@ -100,13 +99,13 @@ router.get('/:industry', authMiddleware, async (req, res) => {
       },
       Sales: {
         salaryRanges: [
-          { role: "Sales Representative", min: 40000, max: 80000, median: 55000, location: "US" },
-          { role: "Account Manager", min: 50000, max: 100000, median: 70000, location: "US" },
-          { role: "Sales Manager", min: 70000, max: 140000, median: 95000, location: "US" },
-          { role: "Business Development Representative", min: 35000, max: 70000, median: 50000, location: "US" },
-          { role: "Sales Director", min: 90000, max: 200000, median: 130000, location: "US" }
+          { role: "Sales Representative", min: 300000, max: 600000, median: 400000, location: "India" },
+          { role: "Account Manager", min: 500000, max: 1000000, median: 700000, location: "India" },
+          { role: "Sales Manager", min: 800000, max: 1800000, median: 1200000, location: "India" },
+          { role: "Business Development Representative", min: 350000, max: 700000, median: 450000, location: "India" },
+          { role: "Sales Director", min: 2000000, max: 4000000, median: 2800000, location: "India" }
         ],
-        growthRate: 12,
+        growthRate: 10,
         demandLevel: "High",
         topSkills: ["CRM Software", "Lead Generation", "Negotiation", "Communication", "Pipeline Management"],
         marketOutlook: "Positive",
@@ -115,11 +114,11 @@ router.get('/:industry', authMiddleware, async (req, res) => {
       },
       Finance: {
         salaryRanges: [
-          { role: "Financial Analyst", min: 55000, max: 120000, median: 75000, location: "US" },
-          { role: "Investment Banker", min: 85000, max: 200000, median: 130000, location: "US" },
-          { role: "Portfolio Manager", min: 90000, max: 250000, median: 150000, location: "US" },
-          { role: "Risk Manager", min: 70000, max: 160000, median: 105000, location: "US" },
-          { role: "Quantitative Analyst", min: 80000, max: 180000, median: 120000, location: "US" }
+          { role: "Financial Analyst", min: 450000, max: 900000, median: 650000, location: "India" },
+          { role: "Investment Banker", min: 1200000, max: 3500000, median: 1800000, location: "India" },
+          { role: "Portfolio Manager", min: 1500000, max: 4000000, median: 2500000, location: "India" },
+          { role: "Risk Manager", min: 1000000, max: 2500000, median: 1600000, location: "India" },
+          { role: "Quantitative Analyst", min: 1200000, max: 3000000, median: 1800000, location: "India" }
         ],
         growthRate: 8,
         demandLevel: "Medium",
@@ -130,13 +129,13 @@ router.get('/:industry', authMiddleware, async (req, res) => {
       },
       Healthcare: {
         salaryRanges: [
-          { role: "Registered Nurse", min: 60000, max: 95000, median: 75000, location: "US" },
-          { role: "Healthcare Administrator", min: 70000, max: 140000, median: 95000, location: "US" },
-          { role: "Medical Technologist", min: 50000, max: 85000, median: 65000, location: "US" },
-          { role: "Healthcare Data Analyst", min: 55000, max: 100000, median: 75000, location: "US" },
-          { role: "Clinical Research Coordinator", min: 45000, max: 80000, median: 60000, location: "US" }
+          { role: "Registered Nurse", min: 250000, max: 500000, median: 350000, location: "India" },
+          { role: "Healthcare Administrator", min: 500000, max: 1000000, median: 700000, location: "India" },
+          { role: "Medical Technologist", min: 300000, max: 600000, median: 400000, location: "India" },
+          { role: "Healthcare Data Analyst", min: 400000, max: 900000, median: 600000, location: "India" },
+          { role: "Clinical Research Coordinator", min: 350000, max: 700000, median: 450000, location: "India" }
         ],
-        growthRate: 15,
+        growthRate: 12,
         demandLevel: "High",
         topSkills: ["Patient Care", "Medical Records", "HIPAA Compliance", "Clinical Research", "Healthcare IT"],
         marketOutlook: "Positive",
@@ -145,11 +144,11 @@ router.get('/:industry', authMiddleware, async (req, res) => {
       },
       Marketing: {
         salaryRanges: [
-          { role: "Digital Marketing Specialist", min: 45000, max: 85000, median: 60000, location: "US" },
-          { role: "Marketing Manager", min: 65000, max: 130000, median: 85000, location: "US" },
-          { role: "Content Marketing Manager", min: 50000, max: 95000, median: 70000, location: "US" },
-          { role: "SEO Specialist", min: 40000, max: 80000, median: 55000, location: "US" },
-          { role: "Social Media Manager", min: 35000, max: 75000, median: 50000, location: "US" }
+          { role: "Digital Marketing Specialist", min: 300000, max: 600000, median: 400000, location: "India" },
+          { role: "Marketing Manager", min: 600000, max: 1500000, median: 900000, location: "India" },
+          { role: "Content Marketing Manager", min: 450000, max: 1000000, median: 650000, location: "India" },
+          { role: "SEO Specialist", min: 250000, max: 500000, median: 350000, location: "India" },
+          { role: "Social Media Manager", min: 300000, max: 600000, median: 400000, location: "India" }
         ],
         growthRate: 10,
         demandLevel: "High",
@@ -160,11 +159,11 @@ router.get('/:industry', authMiddleware, async (req, res) => {
       },
       Education: {
         salaryRanges: [
-          { role: "Elementary Teacher", min: 40000, max: 70000, median: 50000, location: "US" },
-          { role: "Instructional Designer", min: 50000, max: 90000, median: 65000, location: "US" },
-          { role: "Education Administrator", min: 60000, max: 120000, median: 80000, location: "US" },
-          { role: "Curriculum Developer", min: 45000, max: 85000, median: 60000, location: "US" },
-          { role: "Educational Technology Specialist", min: 50000, max: 95000, median: 70000, location: "US" }
+          { role: "Elementary Teacher", min: 200000, max: 500000, median: 300000, location: "India" },
+          { role: "Instructional Designer", min: 400000, max: 900000, median: 600000, location: "India" },
+          { role: "Education Administrator", min: 500000, max: 1200000, median: 800000, location: "India" },
+          { role: "Curriculum Developer", min: 400000, max: 800000, median: 550000, location: "India" },
+          { role: "Educational Technology Specialist", min: 450000, max: 950000, median: 650000, location: "India" }
         ],
         growthRate: 5,
         demandLevel: "Medium",

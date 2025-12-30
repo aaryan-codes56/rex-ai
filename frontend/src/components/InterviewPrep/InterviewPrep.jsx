@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import './InterviewPrep.css';
 import Navbar from '../Navbar';
+import API_BASE_URL from '../../config';
 
 const InterviewPrep = ({ user, onLogout }) => {
   const [showDashboard, setShowDashboard] = useState(false);
@@ -19,11 +20,11 @@ const InterviewPrep = ({ user, onLogout }) => {
         setShowDashboard(false);
       }
     };
-    
+
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
-  
+
   const [recentQuizzes, setRecentQuizzes] = useState([]);
   const [showQuiz, setShowQuiz] = useState(false);
   const [currentQuiz, setCurrentQuiz] = useState(null);
@@ -44,25 +45,35 @@ const InterviewPrep = ({ user, onLogout }) => {
     setRecentQuizzes([]);
   }, []);
 
+  const industries = ['Technology', 'Finance', 'Healthcare', 'Marketing', 'Sales', 'Education'];
+  const [selectedIndustry, setSelectedIndustry] = useState(user?.industry || 'Technology');
+
+  useEffect(() => {
+    if (user?.industry) {
+      setSelectedIndustry(user.industry);
+    }
+  }, [user]);
+
   const startQuiz = async () => {
     setLoading(true);
     try {
       const token = localStorage.getItem('token');
-      console.log('Starting quiz for user industry:', user?.industry);
-      
-      const response = await fetch('https://rex-ai-hu5w.onrender.com/api/interview/generate', {
+      console.log('Starting quiz for industry:', selectedIndustry);
+
+      const response = await fetch(`${API_BASE_URL}/api/interview/generate`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
-        }
+        },
+        body: JSON.stringify({ industry: selectedIndustry })
       });
-      
+
       let questions;
       if (response.ok) {
         const data = await response.json();
         console.log('Received questions:', data);
-        
+
         if (data.questions && Array.isArray(data.questions)) {
           questions = data.questions.map((q, index) => ({
             question: q.question,
@@ -79,7 +90,7 @@ const InterviewPrep = ({ user, onLogout }) => {
         console.error('API Error:', response.status, errorText);
         throw new Error(`API Error: ${response.status}`);
       }
-      
+
       setCurrentQuiz({
         questions,
         answers: new Array(questions.length).fill(''),
@@ -91,13 +102,13 @@ const InterviewPrep = ({ user, onLogout }) => {
       setQuizResults(null);
     } catch (error) {
       console.error('Error generating questions:', error);
-      
+
       // Industry-specific fallback questions
-      const industry = user?.industry || 'Technology';
+      const industry = selectedIndustry || 'Technology';
       console.log('Using fallback questions for:', industry);
-      
+
       const fallbackQuestions = getFallbackQuestions(industry);
-      
+
       setCurrentQuiz({
         questions: fallbackQuestions,
         answers: new Array(fallbackQuestions.length).fill(''),
@@ -135,7 +146,7 @@ const InterviewPrep = ({ user, onLogout }) => {
         { question: "What is scaffolding in education?", options: ["Building structures", "Temporary support for learning", "Assessment method", "Curriculum design"], correct: 1, correctAnswer: "Temporary support for learning", explanation: "Scaffolding provides temporary support to help students achieve learning goals." }
       ]
     };
-    
+
     return questionSets[industry] || questionSets.Technology;
   };
 
@@ -172,17 +183,17 @@ const InterviewPrep = ({ user, onLogout }) => {
         score++;
       }
     });
-    
+
     const percentage = Math.round((score / currentQuiz.questions.length) * 100);
-    
+
     // Save results to backend
     try {
       const token = localStorage.getItem('token');
-      const answers = currentQuiz.answers.map(answerIndex => 
+      const answers = currentQuiz.answers.map(answerIndex =>
         answerIndex !== '' ? currentQuiz.questions[0].options[answerIndex] : ''
       );
-      
-      await fetch('https://rex-ai-hu5w.onrender.com/api/interview/results', {
+
+      await fetch(`${API_BASE_URL}/api/interview/results`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -197,7 +208,7 @@ const InterviewPrep = ({ user, onLogout }) => {
     } catch (error) {
       console.error('Error saving results:', error);
     }
-    
+
     setQuizResults({
       score: percentage,
       correct: score,
@@ -214,15 +225,15 @@ const InterviewPrep = ({ user, onLogout }) => {
   if (showQuiz) {
     return (
       <div className="interview-prep">
-        <Navbar 
-          user={user} 
-          isLoggedIn={true} 
+        <Navbar
+          user={user}
+          isLoggedIn={true}
           onLogout={onLogout}
           showDashboard={showDashboard}
           setShowDashboard={setShowDashboard}
           dropdownRef={dropdownRef}
         />
-        
+
         <div className="quiz-container">
           {!quizResults ? (
             <div className="quiz-content">
@@ -236,8 +247,8 @@ const InterviewPrep = ({ user, onLogout }) => {
                 <div className="quiz-progress">
                   <span className="progress-text">Question {currentQuestion + 1} of {currentQuiz.questions.length}</span>
                   <div className="progress-bar">
-                    <div 
-                      className="progress-fill" 
+                    <div
+                      className="progress-fill"
                       style={{ width: `${((currentQuestion + 1) / currentQuiz.questions.length) * 100}%` }}
                     ></div>
                   </div>
@@ -260,8 +271,8 @@ const InterviewPrep = ({ user, onLogout }) => {
               </div>
 
               <div className="quiz-navigation">
-                <button 
-                  className="nav-btn secondary" 
+                <button
+                  className="nav-btn secondary"
                   onClick={prevQuestion}
                   disabled={currentQuestion === 0}
                 >
@@ -270,8 +281,8 @@ const InterviewPrep = ({ user, onLogout }) => {
                 <div className="nav-center">
                   <span className="question-counter">{currentQuestion + 1}/{currentQuiz.questions.length}</span>
                 </div>
-                <button 
-                  className="nav-btn primary" 
+                <button
+                  className="nav-btn primary"
                   onClick={nextQuestion}
                   disabled={selectedAnswer === ''}
                 >
@@ -300,15 +311,15 @@ const InterviewPrep = ({ user, onLogout }) => {
 
   return (
     <div className="interview-prep">
-      <Navbar 
-        user={user} 
-        isLoggedIn={true} 
+      <Navbar
+        user={user}
+        isLoggedIn={true}
         onLogout={onLogout}
         showDashboard={showDashboard}
         setShowDashboard={setShowDashboard}
         dropdownRef={dropdownRef}
       />
-      
+
       <div className="prep-container">
         <div className="prep-header">
           <h1>Interview Preparation</h1>
@@ -324,8 +335,13 @@ const InterviewPrep = ({ user, onLogout }) => {
             <div className={`quiz-type-card ${loading ? 'loading' : ''}`} onClick={loading ? null : startQuiz}>
               <div className="quiz-type-icon">💻</div>
               <div className="quiz-type-info">
-                <h3>{user?.industry || 'Technology'} Interview</h3>
-                <p>Industry-specific technical questions powered by AI</p>
+                <div className="quiz-type-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                  <h3>Technical Interview</h3>
+                  <div className="industry-badge-small">
+                    {selectedIndustry}
+                  </div>
+                </div>
+                <p>AI-generated questions for {selectedIndustry}</p>
                 <div className="quiz-details">
                   <span className="question-count">10 Questions</span>
                   <span className="difficulty">Mixed Difficulty</span>
@@ -333,7 +349,7 @@ const InterviewPrep = ({ user, onLogout }) => {
               </div>
               <div className="start-arrow">{loading ? '⏳' : '→'}</div>
             </div>
-            
+
             <div className="quiz-type-card coming-soon">
               <div className="quiz-type-icon">🧠</div>
               <div className="quiz-type-info">
@@ -345,7 +361,7 @@ const InterviewPrep = ({ user, onLogout }) => {
                 </div>
               </div>
             </div>
-            
+
             <div className="quiz-type-card coming-soon">
               <div className="quiz-type-icon">📈</div>
               <div className="quiz-type-info">
@@ -396,8 +412,8 @@ const InterviewPrep = ({ user, onLogout }) => {
             <div className="performance-chart">
               {stats.performanceData.map((data, index) => (
                 <div key={index} className="chart-bar">
-                  <div 
-                    className="bar-fill" 
+                  <div
+                    className="bar-fill"
                     style={{ height: `${data.score}%` }}
                   ></div>
                   <span className="bar-label">{data.score}%</span>

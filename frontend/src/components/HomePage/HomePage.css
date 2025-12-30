@@ -231,10 +231,13 @@
 
 /* --- Stats Section --- */
 .stats-section {
-  padding: 100px 0;
+  padding: 80px 0;
+  /* Reduced padding to fit better */
   border-top: 1px solid rgba(255, 255, 255, 0.05);
   border-bottom: 1px solid rgba(255, 255, 255, 0.05);
   background: rgba(0, 0, 0, 0.2);
+  margin-bottom: 60px;
+  /* Add margin spacing */
 }
 
 .stats-grid {
@@ -242,19 +245,30 @@
   grid-template-columns: repeat(4, 1fr);
   gap: 20px;
   text-align: center;
+  max-width: 1200px;
+  margin: 0 auto;
+  align-items: center;
 }
 
 .stat-item {
   padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
 }
 
 .stat-number {
-  font-size: 3rem;
+  font-size: clamp(2rem, 4vw, 3.5rem);
+  /* Responsive font size */
   font-weight: 700;
   background: linear-gradient(to bottom, #fff, #888);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   display: block;
+  line-height: 1.2;
+  white-space: nowrap;
+  /* Prevent wrapping */
 }
 
 .stat-label {
@@ -262,7 +276,78 @@
   font-size: 0.9rem;
   text-transform: uppercase;
   letter-spacing: 1px;
-  margin-top: 5px;
+  margin-top: 10px;
+  font-weight: 500;
+  white-space: nowrap;
+  /* Prevent wrapping */
+}
+
+/* --- How It Works Section --- */
+.how-it-works-section {
+  padding: 100px 0;
+  background: linear-gradient(to bottom, transparent, rgba(0, 0, 0, 0.2));
+  margin-bottom: 60px;
+  /* Add spacing between sections */
+}
+
+.steps-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  /* 4 columns on desktop */
+  gap: 30px;
+  margin-top: 60px;
+  width: 100%;
+}
+
+.step-item {
+  position: relative;
+  padding: 30px 20px;
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  transition: transform 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  /* Uniform height */
+  overflow: hidden;
+  /* Contain absolute elements */
+}
+
+.step-item:hover {
+  transform: translateY(-5px);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.step-number {
+  font-size: 5rem;
+  font-weight: 800;
+  color: rgba(255, 255, 255, 0.03);
+  /* More subtle */
+  position: absolute;
+  top: -10px;
+  right: 10px;
+  line-height: 1;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.step-title {
+  font-size: 1.4rem;
+  font-weight: 700;
+  margin-bottom: 15px;
+  margin-top: 20px;
+  color: white;
+  position: relative;
+  z-index: 1;
+}
+
+.step-description {
+  color: #9ca3af;
+  line-height: 1.6;
+  position: relative;
+  z-index: 1;
+  font-size: 0.95rem;
 }
 
 /* --- Testimonials --- */
@@ -303,6 +388,10 @@
 }
 
 /* --- FAQ Section --- */
+.faq-section {
+  padding: 100px 0;
+}
+
 .faq-container {
   max-width: 800px;
   margin: 0 auto;
@@ -395,17 +484,35 @@
 }
 
 /* Mobile */
+@media (max-width: 1024px) {
+  .steps-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
 @media (max-width: 768px) {
   .hero-title {
     font-size: 3rem;
   }
 
   .features-grid,
-  .stats-grid {
+  .stats-grid,
+  .steps-grid {
     grid-template-columns: 1fr;
+    gap: 30px;
+  }
+
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
   }
 
   .hero-buttons {
     flex-direction: column;
+  }
+}
+
+@media (max-width: 480px) {
+  .stats-grid {
+    grid-template-columns: 1fr;
   }
 }

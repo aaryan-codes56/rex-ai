@@ -2,6 +2,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import './Dashboard.css';
 import Navbar from '../Navbar';
+import API_BASE_URL from '../../config';
 
 const Dashboard = ({ user, token, onLogout, onEditProfile }) => {
   const [showDashboard, setShowDashboard] = React.useState(false);
@@ -10,7 +11,7 @@ const Dashboard = ({ user, token, onLogout, onEditProfile }) => {
   const dropdownRef = React.useRef(null);
   const navigate = useNavigate();
   const skillsArray = user?.skills ? user.skills.split(',').map(skill => skill.trim()) : [];
-  
+
   // Check if profile is complete
   const isProfileComplete = (user) => {
     return user?.industry && user?.experience && user?.skills && user?.bio;
@@ -21,16 +22,16 @@ const Dashboard = ({ user, token, onLogout, onEditProfile }) => {
     try {
       const token = localStorage.getItem('token');
       console.log('Fetching enrolled courses with token:', token ? 'Present' : 'Missing');
-      
-      const response = await fetch('https://rex-ai-hu5w.onrender.com/api/courses/enrolled', {
+
+      const response = await fetch(`${API_BASE_URL}/api/courses/enrolled`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
         }
       });
-      
+
       console.log('Enrolled courses response status:', response.status);
-      
+
       if (response.ok) {
         const data = await response.json();
         console.log('Enrolled courses data:', data);
@@ -62,14 +63,14 @@ const Dashboard = ({ user, token, onLogout, onEditProfile }) => {
         setShowDashboard(false);
       }
     };
-    
+
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
   return (
     <div className="dashboard-page">
-      <Navbar 
+      <Navbar
         user={user}
         isLoggedIn={true}
         onLogout={onLogout}
@@ -77,7 +78,7 @@ const Dashboard = ({ user, token, onLogout, onEditProfile }) => {
         setShowDashboard={setShowDashboard}
         dropdownRef={dropdownRef}
       />
-      
+
       <div className="dashboard-container">
         <div className="dashboard-header">
           <h1>Dashboard</h1>
@@ -155,8 +156,8 @@ const Dashboard = ({ user, token, onLogout, onEditProfile }) => {
                   </div>
                   <div className="course-progress">
                     <div className="progress-bar">
-                      <div 
-                        className="progress-fill" 
+                      <div
+                        className="progress-fill"
                         style={{ width: `${course.progress || 0}%` }}
                       ></div>
                     </div>
