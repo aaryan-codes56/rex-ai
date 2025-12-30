@@ -2,14 +2,14 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import './Navbar.css';
 
-const Navbar = ({ 
-  user, 
-  isLoggedIn, 
-  onSignIn, 
-  onSignUp, 
-  onLogout, 
-  showDashboard, 
-  setShowDashboard, 
+const Navbar = ({
+  user,
+  isLoggedIn,
+  onSignIn,
+  onSignUp,
+  onLogout,
+  showDashboard,
+  setShowDashboard,
   dropdownRef,
   onNavigate,
   showProfile = false
@@ -28,35 +28,42 @@ const Navbar = ({
   return (
     <nav className="navbar">
       <div className="nav-container">
-        <div className="nav-logo" onClick={() => navigate('/')}>
-          <h2>RexAI</h2>
+        <div className="nav-logo" onClick={() => {
+          if (window.location.pathname === '/') {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          } else {
+            navigate('/');
+            setTimeout(() => window.scrollTo(0, 0), 0);
+          }
+        }}>
+          <img src="/rex.png" alt="RexAI" className="logo-image" />
         </div>
-        
+
         {isLoggedIn && user && (
           <div className="nav-links">
-            <button 
-              className="nav-link" 
+            <button
+              className="nav-link"
               onClick={() => handleNavigation('courses')}
             >
               Courses
             </button>
-            
-            <button 
-              className="nav-link" 
+
+            <button
+              className="nav-link"
               onClick={() => handleNavigation('insights')}
             >
               Industry Insights
             </button>
-            
-            <button 
-              className="nav-link" 
+
+            <button
+              className="nav-link"
               onClick={() => handleNavigation('resume')}
             >
               Resume Builder
             </button>
-            
-            <button 
-              className="nav-link" 
+
+            <button
+              className="nav-link"
               onClick={() => handleNavigation('interview')}
             >
               Interview Prep
@@ -68,8 +75,8 @@ const Navbar = ({
           {isLoggedIn && user ? (
             <div className="user-profile" ref={dropdownRef}>
               <span className="user-greeting">Welcome, {user.name}</span>
-              <div 
-                className="profile-avatar" 
+              <div
+                className="profile-avatar"
                 onClick={() => setShowDashboard(!showDashboard)}
               >
                 {user.name?.charAt(0).toUpperCase() || 'U'}

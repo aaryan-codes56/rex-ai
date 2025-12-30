@@ -1,4 +1,26 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap');
+
+:root {
+  /* Colors */
+  --color-bg: #030014;
+  --color-primary: #8b5cf6;
+  --color-secondary: #00c6ff;
+  --color-accent: #ff0080;
+  
+  --color-glass-border: rgba(255, 255, 255, 0.1);
+  --color-glass-surface: rgba(255, 255, 255, 0.03);
+  --color-glass-highlight: rgba(255, 255, 255, 0.08);
+  
+  --shadow-glow: 0 0 20px rgba(139, 92, 246, 0.5);
+  --shadow-card: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+
+  /* Gradients */
+  --gradient-main: linear-gradient(135deg, #8b5cf6 0%, #00c6ff 100%);
+  --gradient-text: linear-gradient(to right, #ffffff, #b4b4b4);
+  
+  /* Layout */
+  --nav-height: 80px;
+}
 
 * {
   margin: 0;
@@ -7,179 +29,56 @@
 }
 
 body {
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-  background: #0a0a0a;
+  font-family: 'Outfit', 'Inter', sans-serif;
+  background: var(--color-bg);
   color: white;
   overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
 }
 
 .App {
   min-height: 100vh;
-  background: #0a0a0a;
+  position: relative;
+  overflow: hidden;
 }
 
-/* Navbar Styles */
-.navbar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 20px 50px;
-  background: rgba(10, 10, 10, 0.95);
-  backdrop-filter: blur(10px);
-  border-bottom: 1px solid rgba(139, 92, 246, 0.1);
-  position: sticky;
-  top: 0;
-  z-index: 100;
+/* Global Utility Classes */
+
+.glass-panel {
+  background: var(--color-glass-surface);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px); /* Safari support */
+  border: 1px solid var(--color-glass-border);
+  box-shadow: var(--shadow-card);
 }
 
-.nav-brand h1 {
-  font-size: 2rem;
-  font-weight: 700;
-  color: white;
-  text-shadow: 0 0 20px rgba(139, 92, 246, 0.5);
-  letter-spacing: -0.02em;
-}
-
-.nav-buttons {
-  display: flex;
-  gap: 15px;
-}
-
-.btn-signin {
-  padding: 12px 24px;
-  background: transparent;
-  color: #8b5cf6;
-  border: 2px solid #8b5cf6;
-  border-radius: 50px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  font-size: 14px;
-}
-
-.btn-signin:hover {
-  background: rgba(139, 92, 246, 0.1);
-  box-shadow: 0 0 20px rgba(139, 92, 246, 0.3);
-  transform: translateY(-2px);
-}
-
-.btn-signup {
-  padding: 12px 24px;
-  background: linear-gradient(135deg, #8b5cf6, #a855f7);
-  color: white;
-  border: none;
-  border-radius: 50px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  font-size: 14px;
-  box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3);
-}
-
-.btn-signup:hover {
-  background: linear-gradient(135deg, #7c3aed, #9333ea);
-  box-shadow: 0 8px 25px rgba(139, 92, 246, 0.4);
-  transform: translateY(-2px);
-}
-
-/* Hero Section */
-.hero {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  min-height: calc(100vh - 100px);
-  text-align: center;
-  padding: 0 20px;
-}
-
-.hero-title {
-  font-size: clamp(3rem, 8vw, 6rem);
-  font-weight: 700;
-  background: linear-gradient(135deg, #ffffff, #8b5cf6);
-  background-clip: text;
+.text-gradient {
+  background: var(--gradient-main);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
-  margin-bottom: 20px;
-  text-shadow: 0 0 40px rgba(139, 92, 246, 0.3);
-  letter-spacing: -0.02em;
+  background-clip: text;
 }
 
-.hero-subtitle {
-  font-size: clamp(1.1rem, 3vw, 1.5rem);
-  color: #a1a1aa;
-  font-weight: 400;
-  max-width: 600px;
-  line-height: 1.6;
-  opacity: 0.9;
+.page-transition {
+  animation: fadeIn 0.5s ease-out;
 }
 
-
-
-/* User Profile in Navbar */
-.user-profile {
-  display: flex;
-  align-items: center;
-  gap: 15px;
-  position: relative;
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
-.user-greeting {
-  color: #a1a1aa;
-  font-weight: 500;
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
 }
-
-.profile-avatar {
-  width: 40px;
-  height: 40px;
-  background: linear-gradient(135deg, #8b5cf6, #a855f7);
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.2rem;
-  font-weight: 700;
-  color: white;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3);
+::-webkit-scrollbar-track {
+  background: #0a0a0a;
 }
-
-.profile-avatar:hover {
-  transform: scale(1.05);
-  box-shadow: 0 6px 20px rgba(139, 92, 246, 0.4);
+::-webkit-scrollbar-thumb {
+  background: #333;
+  border-radius: 4px;
 }
-
-/* Responsive Design */
-@media (max-width: 768px) {
-  .navbar {
-    padding: 15px 20px;
-  }
-  
-  .nav-brand h1 {
-    font-size: 1.5rem;
-  }
-  
-  .nav-buttons {
-    gap: 10px;
-  }
-  
-  .btn-signin, .btn-signup {
-    padding: 10px 20px;
-    font-size: 13px;
-  }
-  
-  .auth-card, .profile-card {
-    padding: 30px 20px;
-  }
-  
-  .user-name {
-    display: none;
-  }
-  
-  .info-item {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 8px;
-  }
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-primary);
 }

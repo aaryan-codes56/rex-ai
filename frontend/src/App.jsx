@@ -10,7 +10,7 @@ import ResumeBuilder from './components/ResumeBuilder'
 import InterviewPrep from './components/InterviewPrep'
 import Courses from './components/Courses/Courses'
 
-const API_URL = 'https://rex-ai-hu5w.onrender.com'
+const API_URL = 'http://localhost:3001'
 
 // Test function to check backend connectivity
 const testBackend = async () => {
@@ -47,7 +47,7 @@ function App() {
   useEffect(() => {
     const storedToken = localStorage.getItem('token')
     console.log('App loaded, checking stored token:', !!storedToken)
-    
+
     if (storedToken) {
       setToken(storedToken)
       // Fetch user profile which will set isLoggedIn and user state
@@ -67,7 +67,7 @@ function App() {
         setShowDashboard(false)
       }
     }
-    
+
     document.addEventListener('mousedown', handleClickOutside)
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [])
@@ -82,13 +82,13 @@ function App() {
 
   const handleAuthSubmit = async (formData) => {
     setMessage('Processing...')
-    
+
     const endpoint = isLogin ? '/api/auth/login' : '/api/auth/register'
-    
+
     try {
       const controller = new AbortController()
       const timeoutId = setTimeout(() => controller.abort(), 60000)
-      
+
       const response = await fetch(`${API_URL}${endpoint}`, {
         method: 'POST',
         headers: {
@@ -97,26 +97,26 @@ function App() {
         body: JSON.stringify(formData),
         signal: controller.signal
       })
-      
+
       clearTimeout(timeoutId)
-      
+
       const data = await response.json()
       console.log('Auth response data:', data);
-      
+
       if (response.ok) {
         setToken(data.token)
         setIsLoggedIn(true)
         setUser(data.user)
         setShowAuth(false)
-        
+
         // Store token in localStorage
         localStorage.setItem('token', data.token)
-        
+
         if (!isLogin) {
           // Show profile modal for new signups
           setShowProfileModal(true)
         }
-        
+
         // Navigate to home
         navigate('/')
       } else {
@@ -124,7 +124,7 @@ function App() {
       }
     } catch (error) {
       console.error('Network error:', error)
-      
+
       if (error.name === 'AbortError') {
         setMessage('Request timed out. Please try again.')
       } else {
@@ -163,12 +163,12 @@ function App() {
           'Authorization': `Bearer ${authToken}`
         }
       })
-      
+
       if (response.ok) {
         const data = await response.json()
         setUser(data.user)
         setIsLoggedIn(true)
-        
+
         // Show profile modal if profile is incomplete
         if (isProfileIncomplete(data.user)) {
           setShowProfileModal(true)
@@ -194,17 +194,17 @@ function App() {
     console.log('Profile data received:', profileData)
     console.log('Current token:', token)
     console.log('Current user:', user)
-    
+
     if (!token) {
       console.error('No token available for profile save')
       alert('Authentication error. Please log in again.')
       return
     }
-    
+
     try {
       setMessage('Saving profile...')
       console.log('Making API request to save profile...')
-      
+
       const response = await fetch(`${API_URL}/api/profile/update`, {
         method: 'PUT',
         headers: {
@@ -213,10 +213,10 @@ function App() {
         },
         body: JSON.stringify(profileData)
       })
-      
+
       console.log('Profile save response status:', response.status)
       console.log('Profile save response headers:', response.headers)
-      
+
       if (!response.ok) {
         const errorText = await response.text()
         console.error('Profile save failed:', response.status, errorText)
@@ -224,32 +224,32 @@ function App() {
         setMessage(`Error saving profile: ${response.status}`)
         return
       }
-      
+
       const data = await response.json()
       console.log('Profile save response data:', data)
-      
+
       // Use the user data returned from backend to ensure consistency
       const updatedUser = data.user || {
         ...user,
         ...profileData
       }
       console.log('Updated user to set:', updatedUser)
-      
+
       setUser(updatedUser)
       setShowProfileModal(false)
       setMessage('Profile saved successfully!')
-      
+
       console.log('Profile save completed successfully')
-      
+
       // Clear message after 3 seconds
       setTimeout(() => setMessage(''), 3000)
-      
+
     } catch (error) {
       console.error('Profile save error:', error)
       alert(`Network error: ${error.message}`)
       setMessage('Error saving profile. Please try again.')
     }
-    
+
     console.log('=== HANDLE PROFILE SAVE END ===')
   }
 
@@ -272,7 +272,7 @@ function App() {
     <div className="App">
       <Routes>
         <Route path="/" element={
-          <HomePage 
+          <HomePage
             onSignIn={() => { setIsLogin(true); setShowAuth(true); }}
             onSignUp={() => { setIsLogin(false); setShowAuth(true); }}
             user={user}
@@ -285,7 +285,7 @@ function App() {
           />
         } />
         <Route path="/dashboard" element={
-          <Dashboard 
+          <Dashboard
             user={user}
             token={token}
             onLogout={handleLogout}
@@ -293,32 +293,32 @@ function App() {
           />
         } />
         <Route path="/insights" element={
-          <IndustryInsights 
+          <IndustryInsights
             user={user}
             onLogout={handleLogout}
           />
         } />
         <Route path="/resume" element={
-          <ResumeBuilder 
+          <ResumeBuilder
             user={user}
             onLogout={handleLogout}
           />
         } />
         <Route path="/interview" element={
-          <InterviewPrep 
+          <InterviewPrep
             user={user}
             onLogout={handleLogout}
           />
         } />
         <Route path="/courses" element={
-          <Courses 
+          <Courses
             user={user}
             onLogout={handleLogout}
           />
         } />
       </Routes>
-      
-      <ProfileModal 
+
+      <ProfileModal
         isOpen={showProfileModal}
         onClose={() => setShowProfileModal(false)}
         onSave={handleProfileSave}
