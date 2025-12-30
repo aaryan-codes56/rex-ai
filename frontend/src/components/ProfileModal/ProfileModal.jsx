@@ -23,7 +23,7 @@ const ProfileModal = ({ isOpen, onClose, onSave, user }) => {
 
   const industries = [
     'Technology', 'Healthcare', 'Finance', 'Education', 'Marketing',
-    'Sales', 'Manufacturing', 'Retail', 'Consulting', 'Media'
+    'Sales', 'Manufacturing', 'Retail', 'Consulting', 'Media', 'Data Science'
   ];
 
   const handleChange = (e) => {
@@ -38,14 +38,14 @@ const ProfileModal = ({ isOpen, onClose, onSave, user }) => {
     console.log('=== PROFILE MODAL SUBMIT ===')
     console.log('Form data:', formData);
     console.log('onSave function exists:', !!onSave);
-    
+
     // Validate required fields
     if (!formData.industry || !formData.experience || !formData.skills || !formData.bio) {
       console.error('Missing required fields');
       alert('Please fill in all required fields');
       return;
     }
-    
+
     if (onSave) {
       console.log('Calling onSave with data:', formData);
       try {
@@ -70,13 +70,13 @@ const ProfileModal = ({ isOpen, onClose, onSave, user }) => {
           <h2>Complete Your Profile</h2>
           <button className="close-btn" onClick={onClose}>×</button>
         </div>
-        
+
         <form onSubmit={handleSubmit} className="profile-form">
           <div className="form-group">
             <label>Industry</label>
-            <select 
-              name="industry" 
-              value={formData.industry} 
+            <select
+              name="industry"
+              value={formData.industry}
               onChange={handleChange}
               required
             >
@@ -108,7 +108,6 @@ const ProfileModal = ({ isOpen, onClose, onSave, user }) => {
               name="skills"
               value={formData.skills}
               onChange={handleChange}
-              placeholder="e.g., JavaScript, React, Node.js"
               required
             />
           </div>
@@ -125,8 +124,8 @@ const ProfileModal = ({ isOpen, onClose, onSave, user }) => {
             />
           </div>
 
-          <button 
-            type="submit" 
+          <button
+            type="submit"
             className="save-btn"
           >
             Complete Profile

@@ -178,13 +178,13 @@ const Courses = ({ user, onLogout }) => {
       if (filters.level) params.append('level', filters.level);
       if (filters.search) params.append('search', filters.search);
 
-      console.log('Fetching courses from:', `https://rex-ai-hu5w.onrender.com/api/courses?${params}`);
+      console.log('Fetching courses from:', `${API_BASE_URL}/api/courses?${params}`);
 
       // Add timeout and retry logic for Render cold starts
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
 
-      const response = await fetch(`https://rex-ai-hu5w.onrender.com/api/courses?${params}`, {
+      const response = await fetch(`${API_BASE_URL}/api/courses?${params}`, {
         signal: controller.signal
       });
 
@@ -362,12 +362,16 @@ const Courses = ({ user, onLogout }) => {
           onSuccess={(newCourse) => {
             setShowCreateModal(false);
             if (newCourse) {
-              setCourses(prevCourses => [newCourse, ...prevCourses]);
+              // Only add to list if it matches current category filter
+              if (filters.category === 'All' || newCourse.category === filters.category) {
+                setCourses(prevCourses => [newCourse, ...prevCourses]);
+              }
             } else {
               fetchCourses();
             }
           }}
           user={user}
+          initialCategory={filters.category}
         />
       )}
 
@@ -391,11 +395,11 @@ const Courses = ({ user, onLogout }) => {
 };
 
 // Create Course Modal Component
-const CreateCourseModal = ({ onClose, onSuccess, user }) => {
+const CreateCourseModal = ({ onClose, onSuccess, user, initialCategory }) => {
   const [formData, setFormData] = useState({
     title: '',
     description: '',
-    category: '',
+    category: initialCategory || user?.industry || '', // Default to active filter or user's industry
     level: '',
     price: 0
   });

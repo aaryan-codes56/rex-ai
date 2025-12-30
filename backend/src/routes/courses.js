@@ -33,12 +33,14 @@ router.get('/', async (req, res) => {
     let total = await Course.countDocuments(filter);
 
     // AI AUTO-GENERATION: If strictly filtering by category and no courses found
+    console.log(`Checking AI Gen: total=${total}, category=${category}, search=${search}, level=${level}`);
+
     if (total === 0 && category && !search && !level) {
       console.log(`No courses found for ${category}. Generating AI courses...`);
       try {
         const { GoogleGenerativeAI } = require('@google/generative-ai');
         const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-        const model = genAI.getGenerativeModel({ model: 'gemini-pro' });
+        const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
 
         const prompt = `
           Generate 5-6 realistic, high-quality, professional online courses SPECIFICALLY for the "${category}" industry for a learning platform.
@@ -59,10 +61,14 @@ router.get('/', async (req, res) => {
           ]
         `;
 
+        console.log('Sending prompt to Gemini...');
         const result = await model.generateContent(prompt);
         let text = result.response.text();
+        console.log('Gemini Raw Response:', text); // DEBUG LOG
+
         text = text.replace(/```json/g, '').replace(/```/g, '').trim();
         const generatedCourses = JSON.parse(text);
+        console.log('Parsed Courses:', generatedCourses.length);
 
         // Sanitize and save
         const newCourses = generatedCourses.map(c => ({
@@ -87,8 +93,83 @@ router.get('/', async (req, res) => {
           total = await Course.countDocuments(filter);
         }
       } catch (aiError) {
-        console.error('AI Course Generation Failed:', aiError);
-        // Continue to return empty list gracefully
+        console.error('AI Course Generation Failed:', aiError.message);
+
+        // Fallback: Generate mock courses if AI fails
+        console.log(`Generating fallback courses for ${category}...`);
+        const fallbackCourses = [
+          {
+            title: `${category} Fundamentals`,
+            description: `A comprehensive introduction to ${category}, covering key concepts and industry standards. Ideal for beginners looking to start their career.`,
+            category: category,
+            level: 'Beginner',
+            price: 0,
+            instructor: new mongoose.Types.ObjectId(),
+            instructorName: 'RexAI Expert',
+            rating: 4.5,
+            totalRatings: 125,
+            isPublished: true,
+            lectures: [],
+            createdAt: new Date()
+          },
+          {
+            title: `Advanced ${category} Strategies`,
+            description: `Master complex ${category} methodologies and strategic planning. Designed for professionals seeking to advance their expertise.`,
+            category: category,
+            level: 'Advanced',
+            price: 2499,
+            instructor: new mongoose.Types.ObjectId(),
+            instructorName: 'Industry Leader',
+            rating: 4.8,
+            totalRatings: 89,
+            isPublished: true,
+            lectures: [],
+            createdAt: new Date()
+          },
+          {
+            title: `${category} in Practice`,
+            description: `Hands-on practical application of ${category} principles. Includes real-world case studies and projects.`,
+            category: category,
+            level: 'Intermediate',
+            price: 999,
+            instructor: new mongoose.Types.ObjectId(),
+            instructorName: 'Senior Practitioner',
+            rating: 4.6,
+            totalRatings: 210,
+            isPublished: true,
+            lectures: [],
+            createdAt: new Date()
+          },
+          {
+            title: `Future of ${category}`,
+            description: `Explore emerging trends, technologies, and future directions in the ${category} industry. Stay ahead of the curve.`,
+            category: category,
+            level: 'Intermediate',
+            price: 1499,
+            instructor: new mongoose.Types.ObjectId(),
+            instructorName: 'Tech Innovator',
+            rating: 4.7,
+            totalRatings: 156,
+            isPublished: true,
+            lectures: [],
+            createdAt: new Date()
+          }
+        ];
+
+        try {
+          await Course.insertMany(fallbackCourses);
+          console.log(`Successfully generated ${fallbackCourses.length} fallback courses for ${category}`);
+
+          // Refetch to get the newly created courses
+          courses = await Course.find(filter)
+            .populate('instructor', 'name')
+            .sort(sortOptions)
+            .limit(limit * 1);
+
+          total = await Course.countDocuments(filter);
+        } catch (dbError) {
+          console.error('Fallback generation failed:', dbError);
+        }
       }
     }
 
@@ -110,7 +191,7 @@ router.get('/enrolled', authMiddleware, async (req, res) => {
     console.log('Fetching enrolled courses for user:', req.user.id);
 
     const courses = await Course.find({
-      enrolledStudents: mongoose.Types.ObjectId(req.user.id),
+      enrolledStudents: new mongoose.Types.ObjectId(req.user.id),
       isPublished: true
     })
       .populate('instructor', 'name')
@@ -121,7 +202,7 @@ router.get('/enrolled', authMiddleware, async (req, res) => {
     // Add mock progress for demo purposes
     const coursesWithProgress = courses.map(course => ({
       ...course.toObject(),
-      progress: Math.floor(Math.random() * 100) // Random progress for demo
+      progress: 0 // Default to 0 start
     }));
 
     res.json({
@@ -159,7 +240,7 @@ router.post('/:id/enroll', authMiddleware, async (req, res) => {
     }
 
     // Check if already enrolled using ObjectId comparison
-    const userObjectId = mongoose.Types.ObjectId(req.user.id);
+    const userObjectId = new mongoose.Types.ObjectId(req.user.id);
     const isAlreadyEnrolled = course.enrolledStudents.some(studentId =>
       studentId.equals(userObjectId)
     );
@@ -310,7 +391,6 @@ router.post('/debug/test-enroll', async (req, res) => {
   }
 });
 
-// Create sample courses (for testing)
 router.post('/seed/sample', async (req, res) => {
   try {
     // Clear existing sample courses first

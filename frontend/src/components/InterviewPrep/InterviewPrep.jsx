@@ -329,50 +329,69 @@ const InterviewPrep = ({ user, onLogout }) => {
         </div>
 
         {/* Available Quiz Types */}
-        <div className="quiz-types-section">
-          <h2>Available Quiz Categories</h2>
-          <div className="quiz-types-grid">
-            <div className={`quiz-type-card ${loading ? 'loading' : ''}`} onClick={loading ? null : startQuiz}>
-              <div className="quiz-type-icon">💻</div>
-              <div className="quiz-type-info">
-                <div className="quiz-type-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-                  <h3>Technical Interview</h3>
-                  <div className="industry-badge-small">
-                    {selectedIndustry}
+        <div className="interview-content">
+          <h2 className="section-title">Available Quiz Categories</h2>
+          <div className="quiz-cards-container">
+            {/* Technical Interview Card - Strict Personalization */}
+            <div className="quiz-card main-card">
+              <div className="quiz-card-content">
+                <div className="icon-wrapper">
+                  <span className="quiz-icon">💻</span>
+                </div>
+                <div className="quiz-info">
+                  <div className="quiz-header">
+                    <h3>Technical Interview</h3>
+                    <span className="industry-badge">{selectedIndustry}</span>
+                  </div>
+                  <p className="quiz-desc">AI-generated questions tailored for {selectedIndustry} roles.</p>
+                  <div className="quiz-meta">
+                    <span>10 Questions</span>
+                    <span className="separator">•</span>
+                    <span>Mixed Difficulty</span>
                   </div>
                 </div>
-                <p>AI-generated questions for {selectedIndustry}</p>
-                <div className="quiz-details">
-                  <span className="question-count">10 Questions</span>
-                  <span className="difficulty">Mixed Difficulty</span>
-                </div>
               </div>
-              <div className="start-arrow">{loading ? '⏳' : '→'}</div>
             </div>
 
-            <div className="quiz-type-card coming-soon">
-              <div className="quiz-type-icon">🧠</div>
-              <div className="quiz-type-info">
-                <h3>Behavioral Interview</h3>
-                <p>Soft skills and behavioral questions</p>
-                <div className="quiz-details">
-                  <span className="question-count">8 Questions</span>
-                  <span className="difficulty">Coming Soon</span>
+            {/* Behavioral Card */}
+            <div className="quiz-card coming-soon">
+              <div className="quiz-card-content">
+                <div className="icon-wrapper">
+                  <span className="quiz-icon">🧠</span>
+                </div>
+                <div className="quiz-info">
+                  <h3>Behavioral Interview</h3>
+                  <p className="quiz-desc">Soft skills and behavioral scenarios.</p>
+                  <div className="quiz-meta">
+                    <span>Coming Soon</span>
+                  </div>
                 </div>
               </div>
             </div>
 
-            <div className="quiz-type-card coming-soon">
-              <div className="quiz-type-icon">📈</div>
-              <div className="quiz-type-info">
-                <h3>Case Study</h3>
-                <p>Problem-solving scenarios</p>
-                <div className="quiz-details">
-                  <span className="question-count">5 Scenarios</span>
-                  <span className="difficulty">Coming Soon</span>
+            {/* Case Study Card */}
+            <div className="quiz-card coming-soon">
+              <div className="quiz-card-content">
+                <div className="icon-wrapper">
+                  <span className="quiz-icon">📈</span>
+                </div>
+                <div className="quiz-info">
+                  <h3>Case Study</h3>
+                  <p className="quiz-desc">Problem-solving and analytical scenarios.</p>
+                  <div className="quiz-meta">
+                    <span>Coming Soon</span>
+                  </div>
                 </div>
               </div>
             </div>
+          </div>
+
+          <div className="start-prep-section">
+            <h2>Ready to Start Your Interview Prep?</h2>
+            <p>Take your first {selectedIndustry} industry quiz to get personalized insights and track your progress.</p>
+            <button className="start-quiz-btn-large" onClick={startQuiz} disabled={loading}>
+              {loading ? '⏳ Generating Questions...' : 'Take Your First Quiz'}
+            </button>
           </div>
         </div>
 
@@ -443,20 +462,6 @@ const InterviewPrep = ({ user, onLogout }) => {
                   </div>
                 </div>
               ))}
-            </div>
-          </div>
-        )}
-
-        {/* Getting Started Message for New Users */}
-        {recentQuizzes.length === 0 && (
-          <div className="getting-started">
-            <div className="welcome-card">
-              <div className="welcome-icon">🚀</div>
-              <h2>Ready to Start Your Interview Prep?</h2>
-              <p>Take your first {user?.industry || 'Technology'} industry quiz to get personalized insights and track your progress.</p>
-              <button className="get-started-btn" onClick={startQuiz} disabled={loading}>
-                {loading ? '⏳ Generating Questions...' : 'Take Your First Quiz'}
-              </button>
             </div>
           </div>
         )}

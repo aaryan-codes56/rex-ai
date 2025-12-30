@@ -179,12 +179,14 @@ const ResumeBuilder = ({ user, onLogout }) => {
   const generateMarkdown = () => {
     const skillsArray = resumeData.skills.split(',').map(s => s.trim()).filter(s => s);
 
-    return `# ${user.name}
+    const contactLine = [
+      resumeData.contactInfo.email,
+      resumeData.contactInfo.mobile,
+      resumeData.contactInfo.linkedin
+    ].filter(Boolean).join(' | ');
 
-## Contact Information
-- **Email:** ${resumeData.contactInfo.email}
-- **Mobile:** ${resumeData.contactInfo.mobile}
-- **LinkedIn:** ${resumeData.contactInfo.linkedin}
+    return `# ${user.name}
+${contactLine}
 
 ## Professional Summary
 ${resumeData.summary}
@@ -209,11 +211,12 @@ ${exp.description}
       <head>
         <title>${user.name} - Resume</title>
         <style>
-          body { font-family: Arial, sans-serif; margin: 40px; line-height: 1.6; }
-          h1 { color: #333; border-bottom: 2px solid #333; }
-          h2 { color: #666; margin-top: 30px; }
-          h3 { color: #444; }
+          body { font-family: Arial, sans-serif; margin: 40px; line-height: 1.6; font-size: 14px; }
+          h1 { color: #333; border-bottom: 2px solid #333; font-size: 24px; padding-bottom: 10px; }
+          h2 { color: #666; margin-top: 25px; border-bottom: 1px solid #ddd; font-size: 18px; }
+          h3 { color: #444; margin-top: 15px; font-size: 16px; }
           ul { padding-left: 20px; }
+          p { margin-bottom: 8px; }
         </style>
       </head>
       <body>
@@ -286,7 +289,7 @@ ${exp.description}
               )}
               {(activeTab === 'preview' || activeTab === 'form') && (
                 <button className="download-btn" onClick={downloadPDF}>
-                  📄 Download HTML
+                  📄 Download Resume
                 </button>
               )}
             </div>
@@ -348,18 +351,31 @@ ${exp.description}
         {activeTab === 'preview' && (
           <div className="preview-section">
             <div className="resume-preview-content">
-              <div dangerouslySetInnerHTML={{
-                __html: generateMarkdown()
-                  .replace(/\n/g, '<br>')
-                  .replace(/# /g, '<h1>')
-                  .replace(/<br><h1>/g, '<h1>')
-                  .replace(/## /g, '</h1><h2>')
-                  .replace(/### /g, '</h2><h3>')
-                  .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-                  .replace(/- /g, '<li>')
-                  .replace(/<li>/g, '<ul><li>')
-                  .replace(/<\/li><br>/g, '</li></ul><br>')
-              }} />
+              <h1>{user.name}</h1>
+              <p>
+                {[
+                  resumeData.contactInfo.email,
+                  resumeData.contactInfo.mobile,
+                  resumeData.contactInfo.linkedin
+                ].filter(Boolean).join(' | ')}
+              </p>
+
+              <h2>Professional Summary</h2>
+              <p>{resumeData.summary || 'Your summary will appear here...'}</p>
+
+              <h2>Skills</h2>
+              <p>{resumeData.skills ? resumeData.skills.split(',').map(s => s.trim()).join(' • ') : 'Your skills will appear here...'}</p>
+
+              <h2>Work Experience</h2>
+              {resumeData.experience.map((exp, index) => (
+                <div key={index} style={{ marginBottom: '15px' }}>
+                  <h3>{exp.position} {exp.company ? `at ${exp.company}` : ''}</h3>
+                  <p style={{ fontStyle: 'italic', fontSize: '0.85rem', color: '#666' }}>
+                    {exp.startDate} - {exp.isCurrent ? 'Present' : exp.endDate}
+                  </p>
+                  <p>{exp.description}</p>
+                </div>
+              ))}
             </div>
           </div>
         )}
@@ -383,7 +399,7 @@ ${exp.description}
                   type="tel"
                   value={resumeData.contactInfo.mobile}
                   onChange={(e) => handleContactChange('mobile', e.target.value)}
-                  placeholder="+1 (555) 123-4567"
+                  placeholder="+91 1234567890"
                 />
               </div>
 
@@ -461,7 +477,6 @@ ${exp.description}
                         />
                       </div>
                       <div className="form-group checkbox-wrapper">
-                        <label>&nbsp;</label>
                         <div className="checkbox-group">
                           <label>
                             <input

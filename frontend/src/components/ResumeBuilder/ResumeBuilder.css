@@ -260,26 +260,24 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
   display: flex;
   align-items: center;
   height: 100%;
-  padding-top: 10px;
+  padding-top: 28px;
+  /* Align with inputs that have labels */
+  justify-content: flex-start;
 }
 
 .checkbox-group label {
-  display: flex;
+  display: flex !important;
+  flex-direction: row !important;
   align-items: center;
+  white-space: nowrap;
   gap: 12px;
   cursor: pointer;
   margin: 0;
-  padding: 12px 16px;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 12px;
-  width: 100%;
-  transition: all 0.2s;
-}
-
-.checkbox-group label:hover {
-  background: rgba(255, 255, 255, 0.1);
-  border-color: rgba(255, 255, 255, 0.2);
+  padding: 0;
+  background: transparent;
+  border: none;
+  width: auto;
+  color: #d1d5db;
 }
 
 input[type="checkbox"] {
@@ -289,15 +287,72 @@ input[type="checkbox"] {
   margin: 0;
 }
 
-/* Preview Section */
+/* Preview Section - Modern Professional */
 .preview-section {
   background: #ffffff;
-  color: #1a1b26;
-  padding: 60px;
+  color: #333333;
+  padding: 60px 80px;
   border-radius: 4px;
   min-height: 800px;
   box-shadow: 0 10px 50px rgba(0, 0, 0, 0.3);
   margin-top: 20px;
+  font-family: 'Arial', 'Helvetica', sans-serif;
+}
+
+.preview-section h1 {
+  font-size: 2.2rem !important;
+  font-weight: 700;
+  text-align: center;
+  margin-bottom: 8px;
+  border-bottom: none;
+  color: #111827;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  padding-bottom: 0;
+}
+
+/* Contact Info Line (Paragraph after H1) */
+.preview-section h1+p {
+  text-align: center;
+  color: #555555;
+  font-size: 0.9rem !important;
+  margin-bottom: 30px;
+  border-bottom: 1px solid #e5e7eb;
+  padding-bottom: 20px;
+}
+
+.preview-section h2 {
+  font-size: 1rem !important;
+  margin-top: 20px;
+  margin-bottom: 10px;
+  color: #000000;
+  border-bottom: 1px solid #000000;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  font-weight: 700;
+  padding-bottom: 4px;
+}
+
+.preview-section h3 {
+  font-size: 1rem !important;
+  margin-top: 12px;
+  margin-bottom: 4px;
+  font-weight: 700;
+  color: #333333;
+}
+
+.preview-section p,
+.preview-section li {
+  font-size: 0.85rem !important;
+  /* Smaller, compact body text */
+  line-height: 1.5;
+  margin-bottom: 6px;
+  color: #333333;
+}
+
+.preview-section ul {
+  padding-left: 18px;
+  margin-bottom: 10px;
 }
 
 /* Saved Resumes */

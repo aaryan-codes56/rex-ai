@@ -27,9 +27,9 @@ app.get('/', (req, res) => {
 });
 
 app.get('/test', (req, res) => {
-  res.json({ 
-    message: 'Backend is working!', 
-    timestamp: new Date().toISOString(), 
+  res.json({
+    message: 'Backend is working!',
+    timestamp: new Date().toISOString(),
     database: mongoose.connection.readyState === 1 ? 'Connected' : 'Disconnected',
     env: {
       hasJwtSecret: !!process.env.JWT_SECRET,
@@ -61,12 +61,15 @@ async function startServer() {
     if (!process.env.JWT_SECRET) {
       throw new Error('JWT_SECRET environment variable is required');
     }
-    
+
     await mongoose.connect(process.env.DATABASE_URL);
     console.log('MongoDB connected successfully');
-    
+
     app.listen(PORT, '0.0.0.0', () => {
-      console.log(`Server running on port ${PORT}`);
+      console.log(`\n=================================`);
+      console.log(`🚀 REX AI SERVER RUNNING on ${PORT}`);
+      console.log(`✅ LATEST UPDATE: Fallback Logic Active`);
+      console.log(`=================================\n`);
     });
   } catch (error) {
     console.error('Failed to start server:', error);
