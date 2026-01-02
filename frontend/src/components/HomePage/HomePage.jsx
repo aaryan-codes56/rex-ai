@@ -127,7 +127,7 @@ const HomePage = ({ onSignIn, onSignUp, user, isLoggedIn, onLogout, showDashboar
 
   return (
     <div className="homepage">
-      <Navbar 
+      <Navbar
         user={user}
         isLoggedIn={isLoggedIn}
         onSignIn={onSignIn}
@@ -139,15 +139,15 @@ const HomePage = ({ onSignIn, onSignUp, user, isLoggedIn, onLogout, showDashboar
         onNavigate={onNavigate}
       />
 
-      {/* Hero Section */}
+
       <section className="hero-section">
         <div className="hero-container">
           <h1 className="hero-title">
-            Your AI Career Coach for 
+            Your AI Career Coach for
             <span className="gradient-text" data-text=" Professional Success"> Professional Success</span>
           </h1>
           <p className="hero-subtitle">
-            Unlock your potential with personalized career guidance, smart course recommendations, 
+            Unlock your potential with personalized career guidance, smart course recommendations,
             and AI-powered resume building - all in one intelligent platform.
           </p>
           {!isLoggedIn && (
@@ -161,14 +161,14 @@ const HomePage = ({ onSignIn, onSignUp, user, isLoggedIn, onLogout, showDashboar
         </div>
       </section>
 
-      {/* Feature Cards */}
+
       <section id="features" className="features-section fade-in-section">
         <div className="container">
           <h2 className="section-title">Powerful Features for Your Success</h2>
           <div className="features-grid">
             {features.map((feature, index) => (
-              <div 
-                key={index} 
+              <div
+                key={index}
                 className="feature-card"
                 style={{ '--index': index }}
                 onMouseEnter={(e) => {
@@ -185,7 +185,7 @@ const HomePage = ({ onSignIn, onSignUp, user, isLoggedIn, onLogout, showDashboar
         </div>
       </section>
 
-      {/* Stats Section */}
+
       <section id="stats" className="stats-section fade-in-section">
         <div className="container">
           <div className="stats-grid">
@@ -199,14 +199,14 @@ const HomePage = ({ onSignIn, onSignUp, user, isLoggedIn, onLogout, showDashboar
         </div>
       </section>
 
-      {/* How It Works */}
+
       <section id="how-it-works" className="how-it-works-section fade-in-section">
         <div className="container">
           <h2 className="section-title">How It Works</h2>
           <div className="steps-grid">
             {steps.map((step, index) => (
-              <div 
-                key={index} 
+              <div
+                key={index}
                 className="step-item"
                 style={{ '--index': index }}
               >
@@ -219,14 +219,14 @@ const HomePage = ({ onSignIn, onSignUp, user, isLoggedIn, onLogout, showDashboar
         </div>
       </section>
 
-      {/* Testimonials */}
+
       <section id="testimonials" className="testimonials-section fade-in-section">
         <div className="container">
           <h2 className="section-title">What Our Users Say</h2>
           <div className="testimonials-grid">
             {testimonials.map((testimonial, index) => (
-              <div 
-                key={index} 
+              <div
+                key={index}
                 className="testimonial-card"
                 style={{ '--index': index }}
               >
@@ -246,14 +246,14 @@ const HomePage = ({ onSignIn, onSignUp, user, isLoggedIn, onLogout, showDashboar
         </div>
       </section>
 
-      {/* FAQ Section */}
+
       <section id="faq" className="faq-section fade-in-section">
         <div className="container">
           <h2 className="section-title">Frequently Asked Questions</h2>
           <div className="faq-container">
             {faqs.map((faq, index) => (
               <div key={index} className="faq-item">
-                <button 
+                <button
                   className={`faq-question ${openFAQ === index ? 'active' : ''}`}
                   onClick={() => toggleFAQ(index)}
                 >
@@ -269,7 +269,7 @@ const HomePage = ({ onSignIn, onSignUp, user, isLoggedIn, onLogout, showDashboar
         </div>
       </section>
 
-      {/* CTA Section */}
+
       {!isLoggedIn && (
         <section className="cta-section">
           <div className="cta-container">
@@ -281,7 +281,7 @@ const HomePage = ({ onSignIn, onSignUp, user, isLoggedIn, onLogout, showDashboar
           </div>
         </section>
       )}
-      
+
       {isLoggedIn && (
         <section className="cta-section">
           <div className="cta-container">

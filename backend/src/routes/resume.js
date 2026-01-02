@@ -4,7 +4,7 @@ const mongoose = require('mongoose');
 
 const router = express.Router();
 
-// Resume Schema
+
 const resumeSchema = new mongoose.Schema({
   userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
   personalInfo: {
@@ -28,13 +28,13 @@ const resumeSchema = new mongoose.Schema({
 
 const Resume = mongoose.model('Resume', resumeSchema);
 
-// Get user's resumes
+
 router.get('/', authMiddleware, async (req, res) => {
   try {
     console.log('Fetching resumes for user:', req.user.id);
     const userResumes = await Resume.find({ userId: req.user.id }).sort({ createdAt: -1 });
     console.log('Found resumes in MongoDB:', userResumes.length);
-    
+
     const formattedResumes = userResumes.map(resume => ({
       id: resume._id.toString(),
       personalInfo: resume.personalInfo,
@@ -44,7 +44,7 @@ router.get('/', authMiddleware, async (req, res) => {
       createdAt: resume.createdAt,
       updatedAt: resume.updatedAt
     }));
-    
+
     console.log('Sending formatted resumes:', formattedResumes.length);
     res.json({ resumes: formattedResumes });
   } catch (error) {
@@ -53,13 +53,13 @@ router.get('/', authMiddleware, async (req, res) => {
   }
 });
 
-// Create resume
+
 router.post('/', authMiddleware, async (req, res) => {
   try {
     const { personalInfo, experience, skills, summary } = req.body;
     console.log('Creating resume for user:', req.user.id);
     console.log('Resume data:', { personalInfo, experience, skills, summary });
-    
+
     const resume = new Resume({
       userId: req.user.id,
       personalInfo,
@@ -67,10 +67,10 @@ router.post('/', authMiddleware, async (req, res) => {
       skills,
       summary
     });
-    
+
     const savedResume = await resume.save();
     console.log('Resume saved to MongoDB:', savedResume._id);
-    
+
     const responseResume = {
       id: savedResume._id.toString(),
       personalInfo: savedResume.personalInfo,
@@ -79,7 +79,7 @@ router.post('/', authMiddleware, async (req, res) => {
       experience: savedResume.experience,
       createdAt: savedResume.createdAt
     };
-    
+
     console.log('Sending response:', responseResume);
     res.status(201).json({ resume: responseResume });
   } catch (error) {
@@ -88,11 +88,11 @@ router.post('/', authMiddleware, async (req, res) => {
   }
 });
 
-// Update resume
+
 router.put('/:id', authMiddleware, async (req, res) => {
   try {
     const { personalInfo, experience, skills, summary } = req.body;
-    
+
     const resume = await Resume.findOneAndUpdate(
       { _id: req.params.id, userId: req.user.id },
       {
@@ -104,11 +104,11 @@ router.put('/:id', authMiddleware, async (req, res) => {
       },
       { new: true }
     );
-    
+
     if (!resume) {
       return res.status(404).json({ message: 'Resume not found' });
     }
-    
+
     const responseResume = {
       id: resume._id.toString(),
       personalInfo: resume.personalInfo,
@@ -118,7 +118,7 @@ router.put('/:id', authMiddleware, async (req, res) => {
       createdAt: resume.createdAt,
       updatedAt: resume.updatedAt
     };
-    
+
     res.json({ resume: responseResume });
   } catch (error) {
     console.error('Update resume error:', error);
@@ -126,18 +126,18 @@ router.put('/:id', authMiddleware, async (req, res) => {
   }
 });
 
-// Delete resume
+
 router.delete('/:id', authMiddleware, async (req, res) => {
   try {
     const resume = await Resume.findOneAndDelete({
       _id: req.params.id,
       userId: req.user.id
     });
-    
+
     if (!resume) {
       return res.status(404).json({ message: 'Resume not found' });
     }
-    
+
     res.json({ message: 'Resume deleted successfully' });
   } catch (error) {
     console.error('Delete resume error:', error);

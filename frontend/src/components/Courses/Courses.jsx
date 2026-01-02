@@ -18,7 +18,7 @@ const Courses = ({ user, onLogout }) => {
     search: ''
   });
 
-  // Update filters if user industry changes (e.g. after profile edit)
+
   useEffect(() => {
     if (user?.industry) {
       setFilters(prev => ({ ...prev, category: user.industry }));
@@ -39,7 +39,7 @@ const Courses = ({ user, onLogout }) => {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  // Wake up backend on component mount
+
   const wakeUpBackend = async () => {
     try {
       await fetch(`${API_BASE_URL}/test`);
@@ -74,10 +74,10 @@ const Courses = ({ user, onLogout }) => {
 
   const handleCourseAction = (course) => {
     if (course.price === 0) {
-      // Free course - enroll directly
+
       enrollInCourse(course._id);
     } else {
-      // Paid course - show payment modal
+
       setSelectedCourse(course);
       setShowPaymentModal(true);
     }
@@ -96,12 +96,12 @@ const Courses = ({ user, onLogout }) => {
       if (response.ok) {
         const data = await response.json();
         alert('Enrolled successfully!');
-        // Add to local enrolled courses immediately for better UX
+
         const enrolledCourse = courses.find(c => c._id === courseId);
         if (enrolledCourse) {
           setEnrolledCourses(prev => [...prev, enrolledCourse]);
         }
-        fetchEnrolledCourses(); // Also refresh from server
+        fetchEnrolledCourses();
       } else {
         const errorData = await response.json();
         alert(errorData.message || 'Enrollment failed');
@@ -109,7 +109,7 @@ const Courses = ({ user, onLogout }) => {
     } catch (error) {
       console.error('Error enrolling:', error);
       alert('Enrolled successfully! (Demo mode - backend unavailable)');
-      // Fallback: add to local state
+
       const enrolledCourse = courses.find(c => c._id === courseId);
       if (enrolledCourse) {
         setEnrolledCourses(prev => [...prev, enrolledCourse]);
@@ -143,7 +143,7 @@ const Courses = ({ user, onLogout }) => {
       }
     } catch (error) {
       console.error('Error deleting course:', error);
-      // Fallback: simulate deletion
+
       alert('Course deleted successfully! (Demo mode - backend unavailable)');
       setCourses(courses.filter(course => course._id !== courseId));
     }
@@ -180,9 +180,9 @@ const Courses = ({ user, onLogout }) => {
 
       console.log('Fetching courses from:', `${API_BASE_URL}/api/courses?${params}`);
 
-      // Add timeout and retry logic for Render cold starts
+
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
+      const timeoutId = setTimeout(() => controller.abort(), 30000);
 
       const response = await fetch(`${API_BASE_URL}/api/courses?${params}`, {
         signal: controller.signal
@@ -253,7 +253,7 @@ const Courses = ({ user, onLogout }) => {
           </div>
         </div>
 
-        {/* Filters */}
+
         <div className="filters-section">
           <input
             type="text"
@@ -279,7 +279,7 @@ const Courses = ({ user, onLogout }) => {
           </select>
         </div>
 
-        {/* Courses Grid */}
+
         {loading ? (
           <div className="loading">
             <div className="loading-spinner"></div>
@@ -355,7 +355,7 @@ const Courses = ({ user, onLogout }) => {
         )}
       </div>
 
-      {/* Create Course Modal */}
+
       {showCreateModal && (
         <CreateCourseModal
           onClose={() => setShowCreateModal(false)}
@@ -375,7 +375,7 @@ const Courses = ({ user, onLogout }) => {
         />
       )}
 
-      {/* Payment Modal */}
+
       {showPaymentModal && selectedCourse && (
         <PaymentModal
           course={selectedCourse}
@@ -394,12 +394,12 @@ const Courses = ({ user, onLogout }) => {
   );
 };
 
-// Create Course Modal Component
+
 const CreateCourseModal = ({ onClose, onSuccess, user, initialCategory }) => {
   const [formData, setFormData] = useState({
     title: '',
     description: '',
-    category: initialCategory || user?.industry || '', // Default to active filter or user's industry
+    category: initialCategory || user?.industry || '',
     level: '',
     price: 0
   });
@@ -427,7 +427,7 @@ const CreateCourseModal = ({ onClose, onSuccess, user, initialCategory }) => {
       }
     } catch (error) {
       console.error('Error creating course:', error);
-      // Fallback: simulate course creation
+
       const mockCourse = {
         _id: Date.now().toString(),
         title: formData.title,
@@ -554,7 +554,7 @@ const CreateCourseModal = ({ onClose, onSuccess, user, initialCategory }) => {
   );
 };
 
-// Payment Modal Component
+
 const PaymentModal = ({ course, onClose, onSuccess }) => {
   const [paymentData, setPaymentData] = useState({
     cardNumber: '',
@@ -568,7 +568,7 @@ const PaymentModal = ({ course, onClose, onSuccess }) => {
     e.preventDefault();
     setProcessing(true);
 
-    // Simulate payment processing
+
     setTimeout(() => {
       setProcessing(false);
       alert(`Payment successful! You've purchased ${course.title}`);

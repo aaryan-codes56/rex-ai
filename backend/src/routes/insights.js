@@ -41,33 +41,32 @@ const generateAIInsights = async (industry) => {
   const result = await model.generateContent(prompt);
   let text = result.response.text().trim();
 
-  // Clean the response more thoroughly
+
   text = text.replace(/```json/g, '').replace(/```/g, '').trim();
   text = text.replace(/^[^{]*{/, '{').replace(/}[^}]*$/, '}');
 
   return JSON.parse(text);
 };
 
-// Get industry insights with AI generation
+
 router.get('/:industry', authMiddleware, async (req, res) => {
   try {
     let { industry } = req.params;
 
-    // Normalize industry name
     industry = industry.charAt(0).toUpperCase() + industry.slice(1).toLowerCase();
-    console.log('Generating insights for industry:', industry);
 
-    // Try to generate AI insights first
+
+
     try {
       if (!process.env.GEMINI_API_KEY) {
         throw new Error('GEMINI_API_KEY not configured');
       }
 
-      console.log('Using Gemini AI to generate insights for:', industry);
-      const aiInsights = await generateAIInsights(industry);
-      console.log('AI insights generated successfully');
 
-      // Validate the response structure
+      const aiInsights = await generateAIInsights(industry);
+
+
+
       if (aiInsights.salaryRanges && aiInsights.topSkills && aiInsights.keyTrends) {
         res.json(aiInsights);
         return;
@@ -75,12 +74,11 @@ router.get('/:industry', authMiddleware, async (req, res) => {
         throw new Error('Invalid AI response structure');
       }
     } catch (aiError) {
-      console.error('AI generation failed:', aiError);
-      console.log('Falling back to static data for:', industry);
-      // Fall back to static data
+
+
     }
 
-    // Fallback static data
+
     const fallbackData = {
       Technology: {
         salaryRanges: [

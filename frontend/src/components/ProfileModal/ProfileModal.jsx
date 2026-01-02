@@ -9,7 +9,7 @@ const ProfileModal = ({ isOpen, onClose, onSave, user }) => {
     bio: user?.bio || ''
   });
 
-  // Update form data when user prop changes
+
   React.useEffect(() => {
     if (user) {
       setFormData({
@@ -35,28 +35,26 @@ const ProfileModal = ({ isOpen, onClose, onSave, user }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log('=== PROFILE MODAL SUBMIT ===')
-    console.log('Form data:', formData);
-    console.log('onSave function exists:', !!onSave);
 
-    // Validate required fields
+
+
     if (!formData.industry || !formData.experience || !formData.skills || !formData.bio) {
-      console.error('Missing required fields');
+
       alert('Please fill in all required fields');
       return;
     }
 
     if (onSave) {
-      console.log('Calling onSave with data:', formData);
+
       try {
         await onSave(formData);
-        console.log('Profile save completed successfully');
+
       } catch (error) {
         console.error('Error saving profile:', error);
         alert('Error saving profile. Please try again.');
       }
     } else {
-      console.error('onSave function not provided to ProfileModal');
+
       alert('Error: Save function not available');
     }
   };

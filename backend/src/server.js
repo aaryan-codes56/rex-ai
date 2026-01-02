@@ -5,7 +5,7 @@ const mongoose = require('mongoose');
 
 const authRoutes = require('./routes/auth');
 const profileRoutes = require('./routes/profile');
-const debugRoutes = require('./routes/debug');
+
 const courseRoutes = require('./routes/courses');
 const careerRoutes = require('./routes/careers');
 const resumeRoutes = require('./routes/resume');
@@ -13,7 +13,7 @@ const insightsRoutes = require('./routes/insights');
 
 const app = express();
 
-// Middleware
+
 app.use(cors({
   origin: '*',
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
@@ -39,11 +39,11 @@ app.get('/test', (req, res) => {
   });
 });
 
-// Routes
+
 app.use('/api/auth', authRoutes);
 app.use('/api/profile', profileRoutes);
-app.use('/api/user', profileRoutes); // Alias for user profile
-app.use('/api/debug', debugRoutes);
+
+
 app.use('/api/courses', courseRoutes);
 app.use('/api/careers', careerRoutes);
 app.use('/api/resume', resumeRoutes);
@@ -52,7 +52,6 @@ app.use('/api/interview', require('./routes/interview'));
 
 const PORT = process.env.PORT || 3001;
 
-// Connect to MongoDB and start server
 async function startServer() {
   try {
     if (!process.env.DATABASE_URL) {
@@ -67,8 +66,8 @@ async function startServer() {
 
     app.listen(PORT, '0.0.0.0', () => {
       console.log(`\n=================================`);
+      console.log(`\n=================================`);
       console.log(`🚀 REX AI SERVER RUNNING on ${PORT}`);
-      console.log(`✅ LATEST UPDATE: Fallback Logic Active`);
       console.log(`=================================\n`);
     });
   } catch (error) {
@@ -79,7 +78,7 @@ async function startServer() {
 
 startServer();
 
-// Graceful shutdown
+
 process.on('SIGINT', async () => {
   await mongoose.disconnect();
   process.exit(0);

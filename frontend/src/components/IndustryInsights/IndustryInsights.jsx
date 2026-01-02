@@ -26,7 +26,7 @@ const IndustryInsights = ({ user, onLogout }) => {
     }
   }, [user]);
 
-  // Close dropdown when clicking outside
+
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
@@ -87,7 +87,7 @@ const IndustryInsights = ({ user, onLogout }) => {
   }, [selectedIndustry]);
 
   const getFallbackInsights = (industry) => {
-    // Default data structure
+
     const defaultData = {
       marketOutlook: 'Stable',
       industryGrowth: 5.2,
@@ -205,7 +205,7 @@ const IndustryInsights = ({ user, onLogout }) => {
           </div>
         </div>
 
-        {/* Top Cards */}
+
         <div className="insights-overview">
           <div className="overview-card market-card">
             <div className="card-header">
@@ -281,7 +281,7 @@ const IndustryInsights = ({ user, onLogout }) => {
           </div>
         </div>
 
-        {/* Enhanced Salary Chart */}
+
         <div className="salary-section">
           <div className="section-header">
             <h2>💰 Salary Insights</h2>
@@ -324,7 +324,7 @@ const IndustryInsights = ({ user, onLogout }) => {
           </div>
         </div>
 
-        {/* Enhanced Trends Section */}
+
         <div className="bottom-section">
           <div className="trends-panel">
             <div className="panel-header">

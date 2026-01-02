@@ -7,7 +7,7 @@ const lectureSchema = new mongoose.Schema({
   },
   description: String,
   videoUrl: String,
-  duration: Number, // in minutes
+  duration: Number,
   order: {
     type: Number,
     required: true

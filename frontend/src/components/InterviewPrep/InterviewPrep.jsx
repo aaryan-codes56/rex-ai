@@ -13,7 +13,7 @@ const InterviewPrep = ({ user, onLogout }) => {
     performanceData: []
   });
 
-  // Close dropdown when clicking outside
+
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
@@ -34,7 +34,7 @@ const InterviewPrep = ({ user, onLogout }) => {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    // Show realistic data for new users
+
     setStats({
       averageScore: 0,
       questionsPracticed: 0,
@@ -103,7 +103,7 @@ const InterviewPrep = ({ user, onLogout }) => {
     } catch (error) {
       console.error('Error generating questions:', error);
 
-      // Industry-specific fallback questions
+
       const industry = selectedIndustry || 'Technology';
       console.log('Using fallback questions for:', industry);
 
@@ -186,7 +186,7 @@ const InterviewPrep = ({ user, onLogout }) => {
 
     const percentage = Math.round((score / currentQuiz.questions.length) * 100);
 
-    // Save results to backend
+
     try {
       const token = localStorage.getItem('token');
       const answers = currentQuiz.answers.map(answerIndex =>
@@ -328,11 +328,11 @@ const InterviewPrep = ({ user, onLogout }) => {
           </button>
         </div>
 
-        {/* Available Quiz Types */}
+
         <div className="interview-content">
           <h2 className="section-title">Available Quiz Categories</h2>
           <div className="quiz-cards-container">
-            {/* Technical Interview Card - Strict Personalization */}
+
             <div className="quiz-card main-card">
               <div className="quiz-card-content">
                 <div className="icon-wrapper">
@@ -353,7 +353,7 @@ const InterviewPrep = ({ user, onLogout }) => {
               </div>
             </div>
 
-            {/* Behavioral Card */}
+
             <div className="quiz-card coming-soon">
               <div className="quiz-card-content">
                 <div className="icon-wrapper">
@@ -369,7 +369,7 @@ const InterviewPrep = ({ user, onLogout }) => {
               </div>
             </div>
 
-            {/* Case Study Card */}
+
             <div className="quiz-card coming-soon">
               <div className="quiz-card-content">
                 <div className="icon-wrapper">
@@ -395,7 +395,7 @@ const InterviewPrep = ({ user, onLogout }) => {
           </div>
         </div>
 
-        {/* Stats Cards - Only show if user has taken quizzes */}
+
         {stats.questionsPracticed > 0 && (
           <div className="stats-grid">
             <div className="stat-card">
@@ -424,7 +424,7 @@ const InterviewPrep = ({ user, onLogout }) => {
           </div>
         )}
 
-        {/* Performance Chart - Only show if user has data */}
+
         {stats.performanceData.length > 0 && (
           <div className="chart-section">
             <h2>Performance Trend</h2>
@@ -443,7 +443,7 @@ const InterviewPrep = ({ user, onLogout }) => {
           </div>
         )}
 
-        {/* Recent Quizzes - Only show if user has taken quizzes */}
+
         {recentQuizzes.length > 0 && (
           <div className="quizzes-section">
             <h2>Recent Quizzes</h2>

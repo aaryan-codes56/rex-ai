@@ -12,12 +12,12 @@ const Dashboard = ({ user, token, onLogout, onEditProfile }) => {
   const navigate = useNavigate();
   const skillsArray = user?.skills ? user.skills.split(',').map(skill => skill.trim()) : [];
 
-  // Check if profile is complete
+
   const isProfileComplete = (user) => {
     return user?.industry && user?.experience && user?.skills && user?.bio;
   };
 
-  // Fetch enrolled courses
+
   const fetchEnrolledCourses = async () => {
     try {
       const token = localStorage.getItem('token');
@@ -43,7 +43,7 @@ const Dashboard = ({ user, token, onLogout, onEditProfile }) => {
       }
     } catch (error) {
       console.error('Error fetching enrolled courses:', error);
-      // Fallback: empty array when backend is unavailable
+
       setEnrolledCourses([]);
     } finally {
       setLoadingCourses(false);
@@ -57,7 +57,7 @@ const Dashboard = ({ user, token, onLogout, onEditProfile }) => {
   const [recommendedCourses, setRecommendedCourses] = React.useState([]);
   const [loadingRecommended, setLoadingRecommended] = React.useState(false);
 
-  // Fetch recommended courses based on user industry
+
   React.useEffect(() => {
     const fetchRecommended = async () => {
       if (!user?.industry) return;
@@ -84,7 +84,7 @@ const Dashboard = ({ user, token, onLogout, onEditProfile }) => {
 
 
 
-  // Close dropdown when clicking outside
+
   React.useEffect(() => {
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
@@ -116,7 +116,7 @@ const Dashboard = ({ user, token, onLogout, onEditProfile }) => {
           </button>
         </div>
 
-        {/* Profile Section */}
+
         <div className="profile-section">
           <div className="profile-card">
             <div className="profile-header">
@@ -168,7 +168,7 @@ const Dashboard = ({ user, token, onLogout, onEditProfile }) => {
           </div>
         </div>
 
-        {/* Recommended Courses Section */}
+
         {user?.industry && (
           <div className="recommended-section">
             <div className="section-header">
@@ -245,7 +245,7 @@ const Dashboard = ({ user, token, onLogout, onEditProfile }) => {
           </div>
         )}
 
-        {/* Enrolled Courses */}
+
         <div className="enrolled-courses">
           <h3>My Enrolled Courses</h3>
           {loadingCourses ? (
@@ -281,7 +281,7 @@ const Dashboard = ({ user, token, onLogout, onEditProfile }) => {
           )}
         </div>
 
-        {/* Quick Actions */}
+
         <div className="quick-actions">
           <h3>Quick Actions</h3>
           <div className="actions-grid">

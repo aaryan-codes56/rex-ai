@@ -13,7 +13,7 @@ import API_BASE_URL from './config'
 
 const API_URL = API_BASE_URL;
 
-// Test function to check backend connectivity
+
 const testBackend = async () => {
   try {
     const response = await fetch(`${API_URL}/test`)
@@ -39,29 +39,28 @@ function App() {
   const dropdownRef = useRef(null)
   const navigate = useNavigate()
 
-  // Check if user profile is incomplete (only for truly empty profiles)
+
   const isProfileIncomplete = (user) => {
     return !user?.industry && !user?.experience && !user?.skills && !user?.bio
   }
 
-  // Check for stored token on app load
+
   useEffect(() => {
     const storedToken = localStorage.getItem('token')
     console.log('App loaded, checking stored token:', !!storedToken)
 
     if (storedToken) {
       setToken(storedToken)
-      // Fetch user profile which will set isLoggedIn and user state
+
       fetchUserProfile(storedToken)
     } else {
-      // Ensure we start with logged out state if no token
-      console.log('No stored token, setting logged out state')
+
       setIsLoggedIn(false)
       setUser(null)
     }
   }, [])
 
-  // Close dropdown when clicking outside
+
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
@@ -110,15 +109,15 @@ function App() {
         setUser(data.user)
         setShowAuth(false)
 
-        // Store token in localStorage
+
         localStorage.setItem('token', data.token)
 
         if (!isLogin) {
-          // Show profile modal for new signups
+
           setShowProfileModal(true)
         }
 
-        // Navigate to home
+
         navigate('/')
       } else {
         setMessage(data.message || `Error: ${response.status}`)
@@ -170,12 +169,12 @@ function App() {
         setUser(data.user)
         setIsLoggedIn(true)
 
-        // Show profile modal if profile is incomplete
+
         if (isProfileIncomplete(data.user)) {
           setShowProfileModal(true)
         }
       } else {
-        // Clear invalid token
+
         localStorage.removeItem('token')
         setToken('')
         setIsLoggedIn(false)
@@ -229,7 +228,7 @@ function App() {
       const data = await response.json()
       console.log('Profile save response data:', data)
 
-      // Use the user data returned from backend to ensure consistency
+
       const updatedUser = data.user || {
         ...user,
         ...profileData
@@ -242,7 +241,7 @@ function App() {
 
       console.log('Profile save completed successfully')
 
-      // Clear message after 3 seconds
+
       setTimeout(() => setMessage(''), 3000)
 
     } catch (error) {
