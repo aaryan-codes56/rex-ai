@@ -129,7 +129,7 @@ function App() {
       if (error.name === 'AbortError') {
         setMessage('Request timed out. Please try again.')
       } else {
-        setMessage(`Error: ${error.message}`)
+        setMessage(`Error: ${error.message} (Target: ${API_URL})`)
       }
     }
   }
