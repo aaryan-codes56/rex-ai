@@ -14,7 +14,7 @@ router.post('/generate', authMiddleware, async (req, res) => {
 
     const { GoogleGenerativeAI } = require('@google/generative-ai');
     const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+    const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash-preview-09-2025' });
 
     const skillsText = user.skills ? ` with expertise in ${user.skills}` : '';
     const industry = req.body.industry || user.industry || 'Technology';
@@ -56,19 +56,23 @@ router.post('/generate', authMiddleware, async (req, res) => {
 
 
       const result = await model.generateContent(prompt);
+      const text = result.response.text();
 
+      const jsonStart = text.indexOf('{');
+      const jsonEnd = text.lastIndexOf('}') + 1;
 
+      if (jsonStart === -1 || jsonEnd === -1) {
+        throw new Error('No JSON object found in response');
+      }
 
+      const jsonStr = text.substring(jsonStart, jsonEnd);
 
-
-      text = text.replace(/```json/g, '').replace(/```/g, '').trim();
-      text = text.replace(/^[^{]*{/, '{').replace(/}[^}]*$/, '}');
 
 
 
       let quiz;
       try {
-        quiz = JSON.parse(text);
+        quiz = JSON.parse(jsonStr);
         console.log('Successfully parsed JSON, questions count:', quiz.questions?.length);
       } catch (parseError) {
         console.error('JSON Parse Error:', parseError.message);
@@ -134,7 +138,7 @@ router.post('/results', authMiddleware, async (req, res) => {
       try {
         const { GoogleGenerativeAI } = require('@google/generative-ai');
         const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-        const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+        const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash-preview-09-2025' });
 
         const tipResult = await model.generateContent(improvementPrompt);
         improvementTip = tipResult.response.text().trim();

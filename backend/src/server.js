@@ -60,6 +60,9 @@ async function startServer() {
     if (!process.env.JWT_SECRET) {
       throw new Error('JWT_SECRET environment variable is required');
     }
+    if (!process.env.GEMINI_API_KEY) {
+      console.warn('WARNING: GEMINI_API_KEY is not set. AI features will fall back to default data.');
+    }
 
     await mongoose.connect(process.env.DATABASE_URL);
     console.log('MongoDB connected successfully');

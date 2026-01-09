@@ -34,12 +34,12 @@ router.get('/', async (req, res) => {
 
 
 
-    if (total === 0 && category && !search && !level) {
+    if (total === 0 && category && !search) {
       console.log(`No courses found for ${category}. Generating AI courses...`);
       try {
         const { GoogleGenerativeAI } = require('@google/generative-ai');
         const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-        const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+        const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash-preview-09-2025' });
 
         const prompt = `
           Generate 5-6 realistic, high-quality, professional online courses SPECIFICALLY for the "${category}" industry for a learning platform.
@@ -65,10 +65,20 @@ router.get('/', async (req, res) => {
         let text = result.response.text();
         console.log('Gemini Raw Response:', text);
 
-        text = text.replace(/```json/g, '').replace(/```/g, '').trim();
-        const generatedCourses = JSON.parse(text);
+        const jsonStart = text.indexOf('[');
+        const jsonEnd = text.lastIndexOf(']') + 1;
+
+        if (jsonStart === -1 || jsonEnd === -1) {
+          throw new Error('No JSON array found in response');
+        }
+
+        const jsonStr = text.substring(jsonStart, jsonEnd);
+        const generatedCourses = JSON.parse(jsonStr);
         console.log('Parsed Courses:', generatedCourses.length);
 
+        if (!generatedCourses || generatedCourses.length === 0) {
+          throw new Error('AI returned no courses');
+        }
 
         const newCourses = generatedCourses.map(c => ({
           ...c,

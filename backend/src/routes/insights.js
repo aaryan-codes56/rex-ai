@@ -5,7 +5,7 @@ const authMiddleware = require('../middleware/authMiddleware');
 const router = express.Router();
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash-preview-09-2025' });
 
 const generateAIInsights = async (industry) => {
   const prompt = `
@@ -39,13 +39,17 @@ const generateAIInsights = async (industry) => {
   `;
 
   const result = await model.generateContent(prompt);
-  let text = result.response.text().trim();
+  const text = result.response.text();
 
+  const jsonStart = text.indexOf('{');
+  const jsonEnd = text.lastIndexOf('}') + 1;
 
-  text = text.replace(/```json/g, '').replace(/```/g, '').trim();
-  text = text.replace(/^[^{]*{/, '{').replace(/}[^}]*$/, '}');
+  if (jsonStart === -1 || jsonEnd === -1) {
+    throw new Error('No JSON object found in response');
+  }
 
-  return JSON.parse(text);
+  const jsonStr = text.substring(jsonStart, jsonEnd);
+  return JSON.parse(jsonStr);
 };
 
 
