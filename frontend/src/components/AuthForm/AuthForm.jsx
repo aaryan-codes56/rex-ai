@@ -115,7 +115,7 @@ const AuthForm = ({ isLogin, onSubmit, onToggle, onBack, message, token }) => {
 
         {message && (
           <div className={`message-container ${message.includes('error') || message.includes('Error') ? 'error' :
-              message.includes('Processing') ? 'processing' : 'success'
+            message.includes('Processing') || message.includes('wait') ? 'processing' : 'success'
             }`}>
 
             <p className="message-text">{message}</p>

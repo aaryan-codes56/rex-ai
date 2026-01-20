@@ -49,12 +49,13 @@ function App() {
     const storedToken = localStorage.getItem('token')
     console.log('App loaded, checking stored token:', !!storedToken)
 
+    // Wake up the backend immediately when the user visits
+    wakeUpBackend();
+
     if (storedToken) {
       setToken(storedToken)
-
       fetchUserProfile(storedToken)
     } else {
-
       setIsLoggedIn(false)
       setUser(null)
     }
@@ -74,9 +75,11 @@ function App() {
 
   const wakeUpBackend = async () => {
     try {
+      console.log('Waking up backend...');
       await fetch(`${API_URL}/test`, { method: 'GET' })
+      console.log('Backend is awake');
     } catch (error) {
-      console.log('Backend wake-up attempt')
+      console.log('Backend wake-up attempt', error)
     }
   }
 
@@ -85,9 +88,14 @@ function App() {
 
     const endpoint = isLogin ? '/api/auth/login' : '/api/auth/register'
 
+    // Set a timer to notify user about cold start if it takes too long
+    const slowResponseTimer = setTimeout(() => {
+      setMessage('Server is starting up (cold start)... this may take up to a minute. Please wait.')
+    }, 3000);
+
     try {
       const controller = new AbortController()
-      const timeoutId = setTimeout(() => controller.abort(), 60000)
+      const timeoutId = setTimeout(() => controller.abort(), 120000) // 2 minutes timeout for cold start
 
       const response = await fetch(`${API_URL}${endpoint}`, {
         method: 'POST',
@@ -99,6 +107,7 @@ function App() {
       })
 
       clearTimeout(timeoutId)
+      clearTimeout(slowResponseTimer) // Clear the slow response timer
 
       const data = await response.json()
       console.log('Auth response data:', data);
@@ -113,7 +122,6 @@ function App() {
         localStorage.setItem('token', data.token)
 
         if (!isLogin) {
-
           setShowProfileModal(true)
         }
 
@@ -123,6 +131,7 @@ function App() {
         setMessage(data.message || `Error: ${response.status}`)
       }
     } catch (error) {
+      clearTimeout(slowResponseTimer)
       console.error('Network error:', error)
 
       if (error.name === 'AbortError') {
